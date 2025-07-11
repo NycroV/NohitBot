@@ -23,6 +23,6 @@ namespace NohitBot.Logging
         }
 
         public IDisposable BeginScope<TState>(TState state) where TState : notnull
-            => throw new NotImplementedException();
+            => throw new Exception("Discord logger cannot be scoped.");
     }
 }
