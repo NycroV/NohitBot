@@ -6,7 +6,7 @@ namespace NohitBot.Database;
 public partial class DataBase
 {
     private static readonly DataBase instance;
-    public const string SavePath = "NohitTable.json;";
+    public const string SavePath = "DataBase.json;";
     public static readonly JsonSerializerSettings SerializerSettings = new()
     {
         Formatting = Formatting.Indented,
