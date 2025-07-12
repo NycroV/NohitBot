@@ -1,38 +1,30 @@
 ﻿using Newtonsoft.Json;
-using NohitBot.Registries;
+using NohitBot.Database;
 
 namespace NohitBot.Data;
 
-public class Boss
+[JsonObject(MemberSerialization.OptOut)]
+public class Boss()
 {
-    public string Name { get; }
-    public List<string> Aliases { get; }
-    public TimeSpan MinimumNohitLength { get; set; }
+    public string Name { get; } = "";
+    
+    public List<string> Aliases { get; } = [];
+    
+    public TimeSpan MinimumNohitLength { get; set; } = TimeSpan.Zero;
 
-    public Boss(string name, IEnumerable<string> aliases)
+    private Boss(string name) : this()
     {
         Name = name;
-        Aliases = aliases.ToList();
-        MinimumNohitLength = BossTable.Registry.TryGetValue(name, out Boss? boss) ? boss.MinimumNohitLength : TimeSpan.Zero;
-        BossTable.Registry[name] = this;
     }
 
-    public void AddAlias(string alias)
+    public static Boss Make(string name)
     {
-        Aliases.Add(alias);
-        BossTable.Save();
-    }
+        if (DataBase.Bosses.TryGetValue(name, out var boss))
+            return boss;
 
-    public void RemoveAlias(string alias)
-    {
-        Aliases.Remove(alias);
-        BossTable.Save();
-    }
-    
-    public void SetMNL(TimeSpan minNohitLength)
-    {
-        MinimumNohitLength = minNohitLength;
-        BossTable.Save();
+        boss = new(name);
+        DataBase.Bosses.Add(name, boss);
+        return boss;
     }
     
     #region Bosses

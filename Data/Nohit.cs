@@ -1,41 +1,37 @@
 ﻿using Newtonsoft.Json;
-using NohitBot.Registries;
+using NohitBot.Database;
 
 namespace NohitBot.Data;
 
 [JsonObject(MemberSerialization.OptOut)]
-public class Nohit(ulong userId, Boss boss, BossProgression bossProgression, string url)
+public class Nohit
 {
-    public uint ID { get; set; } = 0;
-    public ulong UserID { get; } = userId;
+    public uint ID { get; set; }
     
-    public Boss Boss { get; } = boss;
-    public BossProgression BossProgression { get; } = bossProgression;
-    [JsonIgnore] public Journey Journey => NohitTable.Journeys[UserID][BossProgression];
-
-    public string Url { get; } = url;
-    public DateTime TimeStamp { get; } = DateTime.UtcNow;
+    public ulong UserID { get; init; }
     
-    public string? UserComment { get; private set; } = null;
-    public Verification Verification { get; private set; } = Verification.Default;
-
-    public void Review(VerificationStatus verdict, ulong judgeId, string? judgeComment = null)
-    {
-        Verification.ReviewStatus = verdict;
-        Verification.JudgeID = judgeId;
-        Verification.JudgeComment = judgeComment;
-        NohitTable.Save();
-    }
-
-    public void Recomment(string? userComment)
-    {
-        UserComment = userComment;
-        NohitTable.Save();
-    }
+    public string Url { get; init; } = null!;
     
-    public void JudgeRecomment(string? judgeComment)
+    public Boss Boss { get; init; } = null!;
+
+    public Difficulty Difficulty { get; init; }
+
+    public DateTime TimeStamp { get; init; }
+    
+    public string? UserComment { get; set; } = null;
+    
+    public Verification Verification { get; set; } = Verification.Default;
+    
+    [JsonIgnore] public Journey Journey => DataBase.Journeys[UserID][Difficulty];
+
+    private Nohit()
+    { }
+
+    public Nohit(ulong userId, Boss boss, Difficulty difficulty, string url) : this()
     {
-        Verification.JudgeComment = judgeComment;
-        NohitTable.Save();
+        UserID = userId;
+        Boss = boss;
+        Difficulty = difficulty;
+        Url = url;
     }
 }

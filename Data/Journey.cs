@@ -3,20 +3,29 @@
 namespace NohitBot.Data;
 
 [JsonObject(MemberSerialization.OptOut)]
-public class Journey(ulong userId, BossProgression bossProgression)
+public class Journey
 {
-    public ulong UserID { get; } = userId;
+    public ulong UserID { get; init; }
     
     public string? PlaylistUrl { get; set; } = null;
 
-    public BossProgression BossProgression { get; } = bossProgression;
+    public Difficulty Difficulty { get; init; }
 
-    public Dictionary<Boss, Nohit> Nohits { get; } = [];
+    public Dictionary<Boss, Nohit> Nohits { get; init; } = [];
 
-    public Dictionary<Boss, List<Nohit>> OldNohits { get; } = [];
+    public Dictionary<Boss, List<Nohit>> OldNohits { get; init; } = [];
 
-    [JsonIgnore] public bool Complete => BossProgression.RequiredBosses.All(BossVerified);
+    [JsonIgnore] public bool Complete => Difficulty.Progression.RequiredBosses.All(BossVerified);
 
+    private Journey()
+    { }
+
+    public Journey(ulong userId, Difficulty difficulty) : this()
+    {
+        UserID = userId;
+        Difficulty = difficulty;
+    }
+    
     public bool BossVerified(Boss boss)
     {
         return Nohits.TryGetValue(boss, out Nohit? nohit) &&
