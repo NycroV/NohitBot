@@ -30,10 +30,10 @@ builder.Services.AddAsyncTimers();
 
 builder.Services.AddCommandsExtension(
     (_, commands) => {
-        commands.AddCheck<DiscordBotService.OneCommandAtATime>();
         commands.AddCommands(typeof(DiscordBotService).Assembly);
-        commands.CommandExecuted += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
-        commands.CommandErrored += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
+        // commands.AddCheck<DiscordBotService.OneCommandAtATime>();
+        // commands.CommandExecuted += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
+        // commands.CommandErrored += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
     },
 
     new CommandsConfiguration() {

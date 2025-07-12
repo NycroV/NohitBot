@@ -12,6 +12,8 @@ public class Cache : BackgroundService
 
     private static T Await<T>(Task<T> task) => task.GetAwaiter().GetResult();
     private static readonly TaskCompletionSource<DiscordClient> source = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    public static readonly Random RNG = new();
     
     public static DiscordClient Client => Await(source.Task);
 }
