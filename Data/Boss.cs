@@ -123,5 +123,48 @@ public class Boss()
         public static readonly Boss SupremeCalamitas = Make(nameof(SupremeCalamitas).ToLower());
     }
 
+    public static class Infernum
+    {
+        public static readonly Boss Dreadnautilus = Make(nameof(Dreadnautilus).ToLower());
+        
+        public static readonly Boss BereftVassal = Make(nameof(BereftVassal).ToLower());
+
+        public static readonly Boss AdultEidolonWyrm = Make(nameof(AdultEidolonWyrm).ToLower());
+    }
+
+    public static class Empyreal
+    {
+        public static readonly Boss AncientDoomsayer = Make(nameof(AncientDoomsayer).ToLower());
+        
+        public static readonly Boss DevourerOfUniverses = Make(nameof(DevourerOfUniverses).ToLower());
+        
+        public static readonly Boss DragonGodYharon = Make(nameof(DragonGodYharon).ToLower());
+    }
+
+    public static class Thorium
+    {
+        public static readonly Boss GrandThunderBird = Make(nameof(GrandThunderBird).ToLower());
+        
+        public static readonly Boss QueenJellyfish = Make(nameof(QueenJellyfish).ToLower());
+        
+        public static readonly Boss Viscount = Make(nameof(Viscount).ToLower());
+        
+        public static readonly Boss GraniteEnergyStorm = Make(nameof(GraniteEnergyStorm).ToLower());
+        
+        public static readonly Boss BuriedChampion = Make(nameof(BuriedChampion).ToLower());
+        
+        public static readonly Boss StarScouter = Make(nameof(StarScouter).ToLower());
+        
+        public static readonly Boss BoreanStrider = Make(nameof(BoreanStrider).ToLower());
+        
+        public static readonly Boss Coznix = Make(nameof(Coznix).ToLower());
+        
+        public static readonly Boss Lich = Make(nameof(Lich).ToLower());
+        
+        public static readonly Boss Abyssion = Make(nameof(Abyssion).ToLower());
+        
+        public static readonly Boss Primordials = Make(nameof(Primordials).ToLower());
+    }
+
     #endregion
 }
