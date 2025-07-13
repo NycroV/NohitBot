@@ -40,16 +40,18 @@ public class BossProgression
     public static readonly BossProgression Calamity = Make(nameof(Calamity), [
         KingSlime, DesertScourge, EyeOfCthulhu, Crabulon, EaterOfWorlds, BrainOfCthulhu, HiveMind, Perforators, QueenBee, Deerclops, Skeletron, SlimeGod, WallOfFlesh,
         QueenSlime, Cryogen, Destroyer, AquaticScourge, Twins, BrimstoneElemental, SkeletronPrime, CalamitasClone, Plantera, LeviathanAndAnahita, AstrumAureus, Golem, PlaguebringerGoliath, EmpressOfLight, DukeFishron, Ravager, LunaticCultist, AstrumDeus, MoonLord,
-        ProfanedGuardians, Dragonfolly, Providence, StormWeaver, CeaselessVoid, Signus, Polterghast, OldDuke, DevourerOfGods, Yharon, ExoMechs, SupremeCalamitas],
-        [Deerclops]);
+        ProfanedGuardians, Dragonfolly, Providence, StormWeaver, CeaselessVoid, Signus, Polterghast, OldDuke, DevourerOfGods, Yharon, ExoMechs, SupremeCalamitas, BossRush],
+        [Deerclops, BossRush]);
     
     public static readonly BossProgression Infernum = Make(nameof(Infernum), [
             KingSlime, DesertScourge, EyeOfCthulhu, Crabulon, EaterOfWorlds, BrainOfCthulhu, HiveMind, Perforators, QueenBee, Deerclops, Skeletron, SlimeGod, WallOfFlesh,
             Dreadnautilus, QueenSlime, Cryogen, Destroyer, AquaticScourge, Twins, BrimstoneElemental, SkeletronPrime, CalamitasClone, Plantera, LeviathanAndAnahita, AstrumAureus, Golem, PlaguebringerGoliath, EmpressOfLight, DukeFishron, Ravager, LunaticCultist, BereftVassal, AstrumDeus, MoonLord,
             ProfanedGuardians, Dragonfolly, Providence, StormWeaver, CeaselessVoid, Signus, Polterghast, OldDuke, DevourerOfGods, Yharon, AdultEidolonWyrm, ExoMechs, SupremeCalamitas],
-        [Deerclops]);
+        [Deerclops, BossRush]);
     
-    public static readonly BossProgression Empyreal = Make(nameof(Empyreal), [], []);
+    public static readonly BossProgression Empyreal = Make(nameof(Empyreal), [
+        AncientDoomsayer, DevourerOfUniverses, DragonGodYharon], []);
     
-    public static readonly BossProgression Thorium = Make(nameof(Thorium), [], []);
+    public static readonly BossProgression Thorium = Make(nameof(Thorium), [
+        GrandThunderBird, QueenJellyfish, Viscount, GraniteEnergyStorm, BuriedChampion, StarScouter, BoreanStrider, Coznix, Lich, Abyssion, Primordials], []);
 }

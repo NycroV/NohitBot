@@ -47,7 +47,7 @@ public readonly struct Difficulty
 
     public static readonly Difficulty Empyreal = Make("e", nameof(Empyreal), BossProgression.Empyreal, Modifier.DefaultAllowed);
     
-    public static readonly Difficulty Thorium = Make("t", nameof(Thorium), BossProgression.Thorium, []);
+    public static readonly Difficulty Thorium = Make("t", nameof(Thorium), BossProgression.Thorium, Modifier.NoneAllowed);
 
     public static class Modifier
     {
@@ -62,5 +62,7 @@ public readonly struct Difficulty
         public static readonly string Shroomed = Make("s", nameof(Shroomed));
 
         public static readonly string[] DefaultAllowed = [Defiled, Shroomed];
+
+        public static readonly string[] NoneAllowed = [];
     }
 }

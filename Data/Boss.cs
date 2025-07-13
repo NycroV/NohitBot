@@ -152,6 +152,8 @@ public class Boss()
         public static readonly Boss ExoMechs = MakeAfter(Yharon, nameof(ExoMechs));
         
         public static readonly Boss SupremeCalamitas = MakeAlternate(ExoMechs, nameof(SupremeCalamitas));
+        
+        public static readonly Boss BossRush = MakeAfter(SupremeCalamitas, nameof(BossRush));
     }
 
     public static class Infernum
