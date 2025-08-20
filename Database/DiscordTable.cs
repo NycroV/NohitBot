@@ -7,5 +7,5 @@ public partial class DataBase
 {
     [JsonProperty] private readonly Dictionary<ulong, DiscordConfiguration> discordConfigurations = [];
     
-    public Dictionary<ulong, DiscordConfiguration> DiscordConfigurations => discordConfigurations;
+    public static Dictionary<ulong, DiscordConfiguration> DiscordConfigurations => instance.discordConfigurations;
 }

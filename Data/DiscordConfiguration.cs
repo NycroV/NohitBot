@@ -1,4 +1,6 @@
-﻿namespace NohitBot.Data;
+﻿using NohitBot.Database;
+
+namespace NohitBot.Data;
 
 public class DiscordConfiguration
 {
@@ -12,10 +14,20 @@ public class DiscordConfiguration
 
     public readonly List<ulong> JudgeIDs = [];
 
-    public DiscordConfiguration(ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
+    private DiscordConfiguration(ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
     {
         SubmissionChannelId = submissionChannelId;
         LogChannelId = logChannelId;
         JourneyChannelId = journeyChannelId;
+    }
+
+    public DiscordConfiguration Make(ulong guildId, ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
+    {
+        if (DataBase.DiscordConfigurations.TryGetValue(guildId, out var configuration))
+            return configuration;
+        
+        configuration = new(submissionChannelId, logChannelId, journeyChannelId);
+        DataBase.DiscordConfigurations.Add(guildId, configuration);
+        return configuration;
     }
 }

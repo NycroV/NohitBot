@@ -16,4 +16,6 @@ public class Cache : BackgroundService
     public static readonly Random RNG = new();
     
     public static DiscordClient Client => Await(source.Task);
+
+    public const ulong NycroID = 262663471189983242uL;
 }

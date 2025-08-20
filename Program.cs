@@ -1,10 +1,12 @@
-﻿using DSharpPlus.Extensions;
+﻿using System.Diagnostics;
+using DSharpPlus.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NohitBot.Hosting;
 using NohitBot.Logging;
 using DSharpPlus.Commands;
+using NohitBot.Database;
 using NohitBot.Discord;
 
 //----------------------//
@@ -17,6 +19,7 @@ AppDomain.CurrentDomain.UnhandledException += (_, exception) =>
 {
     DiscordLogger.Writer.Close();
     File.WriteAllText("Crash.txt", exception.ExceptionObject.ToString());
+    DataBase.Save();
 };
 
 var builder = new HostApplicationBuilder();
@@ -31,6 +34,7 @@ builder.Services.AddAsyncTimers();
 builder.Services.AddCommandsExtension(
     (_, commands) => {
         commands.AddCommands(typeof(DiscordBotService).Assembly);
+        commands.CommandErrored += DiscordBotService.CommandErrored;
         // commands.AddCheck<DiscordBotService.OneCommandAtATime>();
         // commands.CommandExecuted += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
         // commands.CommandErrored += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
@@ -48,5 +52,9 @@ builder.Services.AddLogging(logger =>
     logger.SetMinimumLevel(LogLevel.Trace);
 });
 
-var host =  builder.Build();
-host.Run();
+DiscordBotService.Host =  builder.Build();
+DiscordBotService.Host.Run();
+
+string executablePath = Environment.ProcessPath!;
+Process.Start(executablePath);
+Environment.Exit(0);

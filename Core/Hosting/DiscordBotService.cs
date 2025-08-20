@@ -1,6 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.EventArgs;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
 
@@ -9,10 +10,14 @@ namespace NohitBot.Hosting
     [UsedImplicitly]
     public class DiscordBotService(DiscordClient client) : BackgroundService
     {
+        public static IHost Host { get; set; } = null!;
+        
         public DiscordClient Client { get; init; } = client;
 
         public static DateTime StartupTime { get; private set; }
 
+        public static bool Debug { get; set; } = false;
+        
         public static DiscordIntents Intents => DiscordIntents.All;
         
         private const string TokenFile = "Token.txt";
@@ -38,6 +43,12 @@ namespace NohitBot.Hosting
                 CommandAccess.Release();
                 return Task.CompletedTask;
             }
+        }
+
+        public static async Task CommandErrored(CommandsExtension extension, CommandErroredEventArgs ctx)
+        {
+            if (!Debug)
+                return;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
