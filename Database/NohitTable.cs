@@ -9,7 +9,7 @@ public partial class DataBase
     
     public static Dictionary<uint, Nohit> Nohits => instance.nohitRegistry;
     
-    public static void Register(Nohit nohit)
+    public static void RegisterNohit(Nohit nohit)
     {
         nohit.ID = (uint)Nohits.Count;
         Nohits.Add(nohit.ID, nohit);

@@ -1,6 +1,6 @@
 ﻿namespace NohitBot.Data;
 
-public class Verification(VerificationStatus reviewStatus)
+public struct Verification(VerificationStatus reviewStatus)
 {
     public VerificationStatus ReviewStatus { get; set; } = reviewStatus;
 
@@ -8,7 +8,7 @@ public class Verification(VerificationStatus reviewStatus)
 
     public string? JudgeComment { get; set; } = null;
 
-    public static readonly Verification Default = new(VerificationStatus.Submitted);
+    public static Verification Default => new(VerificationStatus.Submitted);
 }
 
 public enum VerificationStatus

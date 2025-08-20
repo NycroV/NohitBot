@@ -1,11 +1,11 @@
 ﻿using System.Collections.Frozen;
 using NohitBot.Database;
 
-using static NohitBot.Data.Boss.Vanilla;
-using static NohitBot.Data.Boss.Calamity;
-using static NohitBot.Data.Boss.Empyreal;
-using static NohitBot.Data.Boss.Infernum;
-using static NohitBot.Data.Boss.Thorium;
+using static NohitBot.Data.Boss.VanillaTerraria;
+using static NohitBot.Data.Boss.CalamityMod;
+using static NohitBot.Data.Boss.CalamityEmpyreal;
+using static NohitBot.Data.Boss.InfernumMod;
+using static NohitBot.Data.Boss.ThoriumMod;
 
 namespace NohitBot.Data;
 
@@ -29,13 +29,12 @@ public class BossProgression
 
     private static BossProgression Make(string identifier, IEnumerable<Boss> bosses, IEnumerable<Boss>? optionalBosses = null)
     {
-        if (DataBase.Progressions.TryGetValue(identifier, out var progression))
-            return progression;
-        
-        progression = new(identifier, bosses, optionalBosses);
-        DataBase.Progressions.Add(identifier, progression);
+        BossProgression progression = new(identifier, bosses, optionalBosses);
+        Registry.Add(identifier, progression);
         return progression;
     }
+
+    public static readonly Dictionary<string, BossProgression> Registry = [];
 
     public static readonly BossProgression Calamity = Make(nameof(Calamity), [
         KingSlime, DesertScourge, EyeOfCthulhu, Crabulon, EaterOfWorlds, BrainOfCthulhu, HiveMind, Perforators, QueenBee, Deerclops, Skeletron, SlimeGod, WallOfFlesh,

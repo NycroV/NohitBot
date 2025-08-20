@@ -4,63 +4,31 @@ using NohitBot.Database;
 namespace NohitBot.Data;
 
 [JsonObject(MemberSerialization.OptOut)]
-public class Boss()
+public class Boss
 {
     public string Name { get; } = "";
-    
-    public List<string> Aliases { get; } = [];
-    
-    public TimeSpan MinimumNohitLength { get; set; } = TimeSpan.Zero;
 
-    [JsonIgnore] public int ProgressionWeight { get; private set; }
+    private Boss()
+    { }
 
     private Boss(string name) : this()
     {
         Name = name;
     }
 
-    private static int bossWeight = 0;
-    
-    private static Boss Make(string name, int? weightOverride = null)
+    private static Boss Make(string name)
     {
-        if (!DataBase.Bosses.TryGetValue(name, out var boss))
-        {
-            boss = new(name);
-            DataBase.Bosses.Add(name, boss);
-        }
-        
-        boss.ProgressionWeight = weightOverride ?? (bossWeight++ << 24) + 0b00001000_00000000_00000000_00000000;
+        if (DataBase.Bosses.TryGetValue(name, out var boss))
+            return boss;
+
+        boss = new(name);
+        DataBase.Bosses.Add(name, boss);
         return boss;
     }
-
-    private static int GetShift(int weight)
-    {
-        int shift = 24;
-
-        while (weight << (32 - shift) > 0 && shift > 0)
-            shift -= 8;
-
-        return shift;
-    }
-    
-    private static Boss MakeSub(Boss other, string name)
-    {
-        int shift = GetShift(other.ProgressionWeight) - 8;
-
-        if (shift <= 0)
-            shift = 0;
-
-        int weight = 1 << (shift + 3);
-        return Make(name, other.ProgressionWeight + weight);
-    }
-
-    private static Boss MakeAfter(Boss other, string name) => Make(name, other.ProgressionWeight + (1 << GetShift(other.ProgressionWeight)));
-    private static Boss MakeBefore(Boss other, string name) => Make(name, other.ProgressionWeight - (1 << GetShift(other.ProgressionWeight)));
-    private static Boss MakeAlternate(Boss other, string name) => Make(name, other.ProgressionWeight);
     
     #region Bosses
 
-    public static class Vanilla
+    public static class VanillaTerraria
     {
         public static readonly Boss KingSlime = Make(nameof(KingSlime));
 
@@ -68,7 +36,7 @@ public class Boss()
 
         public static readonly Boss EaterOfWorlds = Make(nameof(EaterOfWorlds));
 
-        public static readonly Boss BrainOfCthulhu = MakeAlternate(EaterOfWorlds, nameof(BrainOfCthulhu));
+        public static readonly Boss BrainOfCthulhu = Make(nameof(BrainOfCthulhu));
 
         public static readonly Boss QueenBee = Make(nameof(QueenBee));
 
@@ -82,9 +50,9 @@ public class Boss()
         
         public static readonly Boss Destroyer = Make(nameof(Destroyer));
         
-        public static readonly Boss Twins = MakeAlternate(Destroyer, nameof(Twins));
+        public static readonly Boss Twins = Make(nameof(Twins));
         
-        public static readonly Boss SkeletronPrime = MakeAlternate(Destroyer, nameof(SkeletronPrime));
+        public static readonly Boss SkeletronPrime = Make(nameof(SkeletronPrime));
         
         public static readonly Boss Plantera = Make(nameof(Plantera));
         
@@ -99,73 +67,73 @@ public class Boss()
         public static readonly Boss MoonLord = Make(nameof(MoonLord));
     }
 
-    public static class Calamity
+    public static class CalamityMod
     {
-        public static readonly Boss DesertScourge = MakeSub(Vanilla.KingSlime, nameof(DesertScourge));
+        public static readonly Boss DesertScourge = Make(nameof(DesertScourge));
         
-        public static readonly Boss Crabulon = MakeSub(Vanilla.EyeOfCthulhu, nameof(Crabulon));
+        public static readonly Boss Crabulon = Make(nameof(Crabulon));
         
-        public static readonly Boss HiveMind = MakeSub(Vanilla.EaterOfWorlds, nameof(HiveMind));
+        public static readonly Boss HiveMind = Make(nameof(HiveMind));
         
-        public static readonly Boss Perforators = MakeAlternate(HiveMind, nameof(Perforators));
+        public static readonly Boss Perforators = Make(nameof(Perforators));
         
-        public static readonly Boss SlimeGod = MakeSub(Vanilla.Skeletron, nameof(SlimeGod));
+        public static readonly Boss SlimeGod = Make(nameof(SlimeGod));
         
-        public static readonly Boss Cryogen = MakeAlternate(Vanilla.Destroyer, nameof(Cryogen));
+        public static readonly Boss Cryogen = Make(nameof(Cryogen));
         
-        public static readonly Boss AquaticScourge = MakeAlternate(Vanilla.Destroyer, nameof(AquaticScourge));
+        public static readonly Boss AquaticScourge = Make(nameof(AquaticScourge));
         
-        public static readonly Boss BrimstoneElemental = MakeAlternate(Vanilla.Destroyer, nameof(BrimstoneElemental));
+        public static readonly Boss BrimstoneElemental = Make(nameof(BrimstoneElemental));
         
-        public static readonly Boss CalamitasClone = MakeAlternate(Vanilla.Plantera, nameof(CalamitasClone));
+        public static readonly Boss CalamitasClone = Make(nameof(CalamitasClone));
         
-        public static readonly Boss LeviathanAndAnahita = MakeSub(Vanilla.Plantera, nameof(LeviathanAndAnahita));
+        public static readonly Boss LeviathanAndAnahita = Make(nameof(LeviathanAndAnahita));
         
-        public static readonly Boss AstrumAureus = MakeAfter(LeviathanAndAnahita, nameof(AstrumAureus));
+        public static readonly Boss AstrumAureus = Make(nameof(AstrumAureus));
         
-        public static readonly Boss PlaguebringerGoliath = MakeSub(Vanilla.Golem, nameof(PlaguebringerGoliath));
+        public static readonly Boss PlaguebringerGoliath = Make(nameof(PlaguebringerGoliath));
         
-        public static readonly Boss Ravager = MakeSub(Vanilla.DukeFishron, nameof(Ravager));
+        public static readonly Boss Ravager = Make(nameof(Ravager));
         
-        public static readonly Boss AstrumDeus = MakeSub(Vanilla.LunaticCultist, nameof(AstrumDeus));
+        public static readonly Boss AstrumDeus = Make(nameof(AstrumDeus));
         
-        public static readonly Boss ProfanedGuardians = MakeSub(Vanilla.MoonLord, nameof(ProfanedGuardians));
+        public static readonly Boss ProfanedGuardians = Make(nameof(ProfanedGuardians));
         
-        public static readonly Boss Dragonfolly = MakeAfter(ProfanedGuardians, nameof(Dragonfolly));
+        public static readonly Boss Dragonfolly = Make(nameof(Dragonfolly));
         
-        public static readonly Boss Providence = MakeAfter(Dragonfolly, nameof(Providence));
+        public static readonly Boss Providence = Make(nameof(Providence));
         
-        public static readonly Boss StormWeaver = MakeAfter(Providence, nameof(StormWeaver));
+        public static readonly Boss StormWeaver = Make(nameof(StormWeaver));
         
-        public static readonly Boss CeaselessVoid = MakeAlternate(StormWeaver, nameof(CeaselessVoid));
+        public static readonly Boss CeaselessVoid = Make(nameof(CeaselessVoid));
         
-        public static readonly Boss Signus = MakeAlternate(StormWeaver, nameof(Signus));
+        public static readonly Boss Signus = Make(nameof(Signus));
         
-        public static readonly Boss Polterghast = MakeAfter(Signus, nameof(Polterghast));
+        public static readonly Boss Polterghast = Make(nameof(Polterghast));
         
-        public static readonly Boss OldDuke = MakeAfter(Polterghast, nameof(OldDuke));
+        public static readonly Boss OldDuke = Make(nameof(OldDuke));
         
-        public static readonly Boss DevourerOfGods = MakeAfter(OldDuke, nameof(DevourerOfGods));
+        public static readonly Boss DevourerOfGods = Make(nameof(DevourerOfGods));
         
-        public static readonly Boss Yharon = MakeAfter(DevourerOfGods, nameof(Yharon));
+        public static readonly Boss Yharon = Make(nameof(Yharon));
         
-        public static readonly Boss ExoMechs = MakeAfter(Yharon, nameof(ExoMechs));
+        public static readonly Boss ExoMechs = Make(nameof(ExoMechs));
         
-        public static readonly Boss SupremeCalamitas = MakeAlternate(ExoMechs, nameof(SupremeCalamitas));
+        public static readonly Boss SupremeCalamitas = Make(nameof(SupremeCalamitas));
         
-        public static readonly Boss BossRush = MakeAfter(SupremeCalamitas, nameof(BossRush));
+        public static readonly Boss BossRush = Make(nameof(BossRush));
     }
 
-    public static class Infernum
+    public static class InfernumMod
     {
-        public static readonly Boss Dreadnautilus = MakeSub(Vanilla.WallOfFlesh, nameof(Dreadnautilus));
+        public static readonly Boss Dreadnautilus = Make(nameof(Dreadnautilus));
         
-        public static readonly Boss BereftVassal = MakeBefore(Calamity.AstrumDeus, nameof(BereftVassal));
+        public static readonly Boss BereftVassal = Make(nameof(BereftVassal));
 
-        public static readonly Boss AdultEidolonWyrm = MakeAfter(Calamity.Yharon, nameof(AdultEidolonWyrm));
+        public static readonly Boss AdultEidolonWyrm = Make(nameof(AdultEidolonWyrm));
     }
 
-    public static class Empyreal
+    public static class CalamityEmpyreal
     {
         public static readonly Boss AncientDoomsayer = Make(nameof(AncientDoomsayer));
         
@@ -174,7 +142,7 @@ public class Boss()
         public static readonly Boss DragonGodYharon = Make(nameof(DragonGodYharon));
     }
 
-    public static class Thorium
+    public static class ThoriumMod
     {
         public static readonly Boss GrandThunderBird = Make(nameof(GrandThunderBird));
         

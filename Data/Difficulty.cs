@@ -8,34 +8,32 @@ public readonly struct Difficulty
 {
     public readonly string Mode = null!;
     
-    public readonly string[] Modifiers = [];
+    public readonly string[] Modifiers = null!;
 
     [JsonIgnore] public string ProgressionTrack { get; init; } = null!;
     
-    [JsonIgnore] public string[] AllowedModifiers { get; init; } = null!;
+    [JsonIgnore] public Dictionary<string, string> AllowedModifiers { get; init; } = null!;
     
-    [JsonIgnore] public BossProgression Progression => DataBase.Progressions[ProgressionTrack];
+    [JsonIgnore] public BossProgression Progression => BossProgression.Registry[ProgressionTrack];
     
-    public Difficulty()
-    { }
-    
-    public Difficulty(string name, string[] modifiers)
+    private Difficulty(string name)
     {
         Mode = name;
-        Modifiers = modifiers;
     }
 
-    private static Difficulty Make(string key, string name, BossProgression progression, string[] allowedModifiers)
+    private static Difficulty Make(string identifier, string name, BossProgression progression, Dictionary<string, string> allowedModifiers)
     {
-        Difficulty difficulty = new Difficulty(name, null!)
+        Difficulty difficulty = new Difficulty(name)
         {
             ProgressionTrack = progression.Identifier,
             AllowedModifiers = allowedModifiers
         };
         
-        DataBase.Difficulties.Add(key, difficulty);
+        Registry.Add(identifier, difficulty);
         return difficulty;
     }
+
+    public static readonly Dictionary<string, Difficulty> Registry = [];
 
     public static readonly Difficulty Revengeance = Make("r", nameof(Revengeance), BossProgression.Calamity, Modifier.DefaultAllowed);
     
@@ -51,18 +49,12 @@ public readonly struct Difficulty
 
     public static class Modifier
     {
-        private static string Make(string key, string name)
-        {
-            DataBase.DifficultyModifiers.Add(key, name);
-            return name;
-        }
-
-        public static readonly string Defiled = Make("d", nameof(Defiled));
+        public static readonly KeyValuePair<string, string> Defiled = new("d", nameof(Defiled));
         
-        public static readonly string Shroomed = Make("s", nameof(Shroomed));
+        public static readonly KeyValuePair<string, string> Shroomed = new("s", nameof(Shroomed));
 
-        public static readonly string[] DefaultAllowed = [Defiled, Shroomed];
+        public static readonly Dictionary<string, string> DefaultAllowed = new([Defiled, Shroomed]);
 
-        public static readonly string[] NoneAllowed = [];
+        public static readonly Dictionary<string, string> NoneAllowed = [];
     }
 }
