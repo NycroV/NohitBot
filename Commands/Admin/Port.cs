@@ -24,7 +24,7 @@ public class Port
         }
 
         DataBase.Save();
-        string text = DataBase.FileText;
+        string text = DataBase.ReadFile();
 
         if (!text.Contains(oldId))
         {
@@ -35,7 +35,7 @@ public class Port
         int count = text.Split(oldId).Length - 1;
         string newText = text.Replace(oldId, newId);
         
-        DataBase.FileText = newText;
+        DataBase.WriteFile(newText);
         await ctx.RespondAsync($"**{count}** instances of {oldId} replaced with {newId}.\n" +
                                $"Reloading...");
         

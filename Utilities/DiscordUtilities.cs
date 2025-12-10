@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using DSharpPlus;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -156,5 +157,16 @@ public static partial class Utils
         _messageMentionedUsersSetter(message) = userMentions;
         _messageMentionedRolesSetter(message) = roleMentions;
         _messageMentionedChannelsSetter(message) = channelMentions;
+    }
+
+    public static async Task RespondAsync(this CommandContext context, DiscordMessageBuilder message, bool ephemeral)
+    {
+        if (context is SlashCommandContext slashContext && ephemeral)
+        {
+            await slashContext.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder(message).AsEphemeral());
+        }
+
+        await context.RespondAsync(message);
     }
 }

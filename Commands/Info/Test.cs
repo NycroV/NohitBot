@@ -13,9 +13,10 @@ public class Test
         TimeSpan uptime = DateTime.UtcNow - DiscordBotService.StartupTime;
         int ping = (int)Math.Round(ctx.Client.GetConnectionLatency(ctx.Guild!.Id).TotalMilliseconds);
 
-        await ctx.RespondAsync("NohitBot Stats:\n" +
-                               "\n" +
-                               $"Uptime: {uptime.Days}d, {uptime.Hours}h, {uptime.Minutes}m, {uptime.Seconds}s\n" +
-                               $"Latency: {ping}ms");
+        await ctx.RespondAsync(
+            "NohitBot Stats:\n" +
+                   "\n" +
+                   $"Uptime: {uptime.Days}d, {uptime.Hours}h, {uptime.Minutes}m, {uptime.Seconds}s\n" +
+                   $"Latency: {ping}ms");
     }
 }

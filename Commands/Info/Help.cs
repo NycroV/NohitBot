@@ -2,6 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Entities;
+using NohitBot.Utilities;
 
 namespace NohitBot.Commands.Info;
 
@@ -27,14 +28,6 @@ public class Help
                 ], false, null
             ));
 
-        if (ctx is SlashCommandContext slashContext)
-        {
-            await slashContext.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder(message).AsEphemeral());
-
-            return;
-        }
-
-        await ctx.RespondAsync(message);
+        await ctx.RespondAsync(message, true);
     }
 }

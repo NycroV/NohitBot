@@ -21,15 +21,14 @@ public class RemoveJudge
 
         if (!DataBase.DiscordConfigurations.TryGetValue(ctx.Guild!.Id, out var config))
         {
-            await ctx.RespondAsync("This server is not yet set up for configuration. Contact \\@nycro for setup!");
+            await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");
             return;
         }
 
-        if (!config.JudgeIDs.Remove(user.Id))
-        {
-            await ctx.RespondAsync("This user is not a judge.");
-        }
+        if (config.RemoveJudge(user.Id))
+            await ctx.RespondAsync("Judge removed!");
         
-        await ctx.RespondAsync("Judge removed!");
+        else
+            await ctx.RespondAsync("Specified user is not a judge.");
     }
 }

@@ -5,9 +5,11 @@ namespace NohitBot.Database;
 [JsonObject(MemberSerialization.OptOut)]
 public partial class DataBase
 {
-    private static readonly DataBase instance;
     public const string SavePath = "DataBase.json;";
-    public static readonly JsonSerializerSettings SerializerSettings = new()
+    
+    private static readonly DataBase instance;
+    
+    private static readonly JsonSerializerSettings SerializerSettings = new()
     {
         Formatting = Formatting.Indented,
         ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
@@ -17,6 +19,25 @@ public partial class DataBase
     // Ensures we do not attempt to access the file more than once at the same time.
     private static readonly SemaphoreSlim ioHandle = new(1, 1);
     
+    private static string Serialize() => JsonConvert.SerializeObject(instance, SerializerSettings);
+    
+    private static DataBase Deserialize(string json) => JsonConvert.DeserializeObject<DataBase>(json, SerializerSettings)!;
+
+    public static string ReadFile()
+    {
+        ioHandle.Wait();
+        string text = File.ReadAllText(SavePath);
+        ioHandle.Release();
+        return text;
+    }
+
+    public static void WriteFile(string text)
+    {
+        ioHandle.Wait();
+        File.WriteAllText(SavePath, text);
+        ioHandle.Release();
+    }
+
     static DataBase()
     {
         if (!File.Exists(SavePath))
@@ -26,17 +47,13 @@ public partial class DataBase
             return;
         }
         
-        ioHandle.Wait();
-        string serialized = File.ReadAllText(SavePath);
-        instance = JsonConvert.DeserializeObject<DataBase>(serialized, SerializerSettings)!;
-        ioHandle.Release();
+        string serialized = ReadFile();
+        instance = Deserialize(serialized);
     }
 
     public static void Save()
     {
-        ioHandle.Wait();
-        string serialized = JsonConvert.SerializeObject(instance, SerializerSettings);
-        File.WriteAllText(SavePath, serialized);
-        ioHandle.Release();
+        string serialized = Serialize();
+        WriteFile(serialized);
     }
 }

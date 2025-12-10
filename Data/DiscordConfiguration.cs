@@ -29,4 +29,20 @@ public class DiscordConfiguration
         DataBase.Save();
         return configuration;
     }
+
+    public void AddJudge(ulong judgeId)
+    {
+        judgeIds.Add(judgeId);
+        DataBase.Save();
+    }
+
+    public bool RemoveJudge(ulong judgeId)
+    {
+        if (!judgeIds.Remove(judgeId))
+            return false;
+        
+        DataBase.Save();
+        return true;
+
+    }
 }

@@ -21,17 +21,17 @@ public class AddJudge
 
         if (!DataBase.DiscordConfigurations.TryGetValue(ctx.Guild!.Id, out var config))
         {
-            await ctx.RespondAsync("This server is not yet set up for configuration. Contact \\@nycro for setup!");
+            await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");
             return;
         }
 
-        if (config.JudgeIDs.Contains(user.Id))
+        if (config.JudgeIds.Contains(user.Id))
         {
             await ctx.RespondAsync("This user is already a judge.");
             return;
         }
         
-        config.JudgeIDs.Add(user.Id);
+        config.AddJudge(user.Id);
         await ctx.RespondAsync("Judge added!");
     }
 }
