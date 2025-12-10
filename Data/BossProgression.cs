@@ -1,56 +1,51 @@
-﻿using System.Collections.Frozen;
+﻿using System.Collections;
+using System.Collections.Frozen;
 using NohitBot.Database;
-
-using static NohitBot.Data.Boss.VanillaTerraria;
-using static NohitBot.Data.Boss.CalamityMod;
-using static NohitBot.Data.Boss.CalamityEmpyreal;
-using static NohitBot.Data.Boss.InfernumMod;
-using static NohitBot.Data.Boss.ThoriumMod;
 
 namespace NohitBot.Data;
 
 public class BossProgression
 {
-    public string Identifier { get; init; }
+    public string Name { get; private set; } = null!;
     
-    public FrozenSet<Boss> Bosses { get; init; }
+    private List<BossContainer> progression { get; init; } = null!;
+
+    public FrozenSet<BossContainer> Progression => progression.ToFrozenSet();
+
+    public FrozenSet<Boss> Bosses => Progression.Select(c => c.Boss).ToFrozenSet();
+
+    public FrozenSet<Boss> RequiredBosses => Progression.Where(c => !c.Optional).Select(c => c.Boss).ToFrozenSet();
     
-    public FrozenSet<Boss> RequiredBosses { get; init; }
+    public FrozenSet<Boss> OptionalBosses => Progression.Where(c => c.Optional).Select(c => c.Boss).ToFrozenSet();
     
-    public FrozenSet<Boss> OptionalBosses { get; init; }
+    public ulong ManagementServer { get; init; }
     
-    private BossProgression(string identifier, IEnumerable<Boss> bosses, IEnumerable<Boss>? optionalBosses = null)
+    private BossProgression() { }
+    
+    private BossProgression(string name, ulong managementServer)
     {
-        Identifier = identifier;
-        Bosses = bosses.ToFrozenSet();
-        OptionalBosses = optionalBosses?.ToFrozenSet() ?? [];
-        RequiredBosses = Bosses.Except(OptionalBosses).ToFrozenSet();
+        Name = name;
+        progression = [];
+        ManagementServer = managementServer;
     }
 
-    private static BossProgression Make(string identifier, IEnumerable<Boss> bosses, IEnumerable<Boss>? optionalBosses = null)
+    public static BossProgression Make(string identifier, ulong managementServer, BossProgression? copy = null)
     {
-        BossProgression progression = new(identifier, bosses, optionalBosses);
-        Registry.Add(identifier, progression);
+        BossProgression progression = new(identifier, managementServer);
+        
+        if (copy is not null)
+            progression.progression.AddRange(copy.Progression);
+        
+        DataBase.Progressions.Add(progression);
+        DataBase.Save();
         return progression;
     }
 
-    public static readonly Dictionary<string, BossProgression> Registry = [];
-
-    public static readonly BossProgression Calamity = Make(nameof(Calamity), [
-        KingSlime, DesertScourge, EyeOfCthulhu, Crabulon, EaterOfWorlds, BrainOfCthulhu, HiveMind, Perforators, QueenBee, Deerclops, Skeletron, SlimeGod, WallOfFlesh,
-        QueenSlime, Cryogen, Destroyer, AquaticScourge, Twins, BrimstoneElemental, SkeletronPrime, CalamitasClone, Plantera, LeviathanAndAnahita, AstrumAureus, Golem, PlaguebringerGoliath, EmpressOfLight, DukeFishron, Ravager, LunaticCultist, AstrumDeus, MoonLord,
-        ProfanedGuardians, Dragonfolly, Providence, StormWeaver, CeaselessVoid, Signus, Polterghast, OldDuke, DevourerOfGods, Yharon, ExoMechs, SupremeCalamitas, BossRush],
-        [Deerclops, BossRush]);
+    public void Delete()
+    {
+        DataBase.Progressions.Remove(this);
+        DataBase.Save();
+    }
     
-    public static readonly BossProgression Infernum = Make(nameof(Infernum), [
-            KingSlime, DesertScourge, EyeOfCthulhu, Crabulon, EaterOfWorlds, BrainOfCthulhu, HiveMind, Perforators, QueenBee, Deerclops, Skeletron, SlimeGod, WallOfFlesh,
-            Dreadnautilus, QueenSlime, Cryogen, Destroyer, AquaticScourge, Twins, BrimstoneElemental, SkeletronPrime, CalamitasClone, Plantera, LeviathanAndAnahita, AstrumAureus, Golem, PlaguebringerGoliath, EmpressOfLight, DukeFishron, Ravager, LunaticCultist, BereftVassal, AstrumDeus, MoonLord,
-            ProfanedGuardians, Dragonfolly, Providence, StormWeaver, CeaselessVoid, Signus, Polterghast, OldDuke, DevourerOfGods, Yharon, AdultEidolonWyrm, ExoMechs, SupremeCalamitas],
-        [Deerclops, BossRush]);
-    
-    public static readonly BossProgression Empyreal = Make(nameof(Empyreal), [
-        AncientDoomsayer, DevourerOfUniverses, DragonGodYharon], []);
-    
-    public static readonly BossProgression Thorium = Make(nameof(Thorium), [
-        GrandThunderBird, QueenJellyfish, Viscount, GraniteEnergyStorm, BuriedChampion, StarScouter, BoreanStrider, Coznix, Lich, Abyssion, Primordials], []);
+    public record struct BossContainer(Boss Boss, Boss? EquivalentBoss = null, bool Optional = false);
 }

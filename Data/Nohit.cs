@@ -6,15 +6,15 @@ namespace NohitBot.Data;
 [JsonObject(MemberSerialization.OptOut)]
 public class Nohit
 {
-    public uint ID { get; set; }
+    public uint ID { get; private set; }
     
     public ulong UserID { get; init; }
     
     public string Url { get; init; } = null!;
     
-    public Boss Boss { get; init; } = null!;
-
     public Difficulty Difficulty { get; init; }
+    
+    public Boss Boss { get; init; } = null!;
 
     public DateTime TimeStamp { get; init; }
     
@@ -24,10 +24,9 @@ public class Nohit
     
     [JsonIgnore] public Journey Journey => DataBase.Journeys[UserID][Difficulty];
 
-    private Nohit()
-    { }
+    private Nohit() { }
 
-    public Nohit(ulong userId, Boss boss, Difficulty difficulty, string url) : this()
+    public Nohit(ulong userId, Boss boss, Difficulty difficulty, string url)
     {
         UserID = userId;
         Boss = boss;

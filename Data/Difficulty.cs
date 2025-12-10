@@ -1,60 +1,96 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections;
+using System.Collections.Frozen;
+using Newtonsoft.Json;
 using NohitBot.Data;
 using NohitBot.Database;
 
 namespace NohitBot.Data;
 
-public readonly struct Difficulty
+public readonly struct Difficulty(Difficulty.GameMode gameMode, string[] modifiers) : IEquatable<Difficulty>
 {
-    public readonly string Mode = null!;
-    
-    public readonly string[] Modifiers = null!;
+    public readonly GameMode Mode = gameMode;
 
-    [JsonIgnore] public string ProgressionTrack { get; init; } = null!;
-    
-    [JsonIgnore] public Dictionary<string, string> AllowedModifiers { get; init; } = null!;
-    
-    [JsonIgnore] public BossProgression Progression => BossProgression.Registry[ProgressionTrack];
-    
-    private Difficulty(string name)
-    {
-        Mode = name;
-    }
+    public readonly string[] Modifiers = modifiers;
 
-    private static Difficulty Make(string identifier, string name, BossProgression progression, Dictionary<string, string> allowedModifiers)
+    public static bool operator ==(Difficulty mode1, Difficulty mode2) => mode1.Mode == mode2.Mode && mode1.Modifiers.SequenceEqual(mode2.Modifiers);
+
+    public static bool operator !=(Difficulty mode1, Difficulty mode2) => !(mode1 == mode2);
+
+    public bool Equals(Difficulty other) => this == other;
+
+    public override bool Equals(object? obj) => obj is Difficulty other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(Mode, (IStructuralComparable)Modifiers);
+
+    public class GameMode
     {
-        Difficulty difficulty = new Difficulty(name)
+        public string Name { get; private set; } = null!;
+
+        public string Identifier { get; private set; } = null!;
+
+        private Dictionary<string, string> allowedModifiers { get; init; } = null!;
+
+        public FrozenDictionary<string, string> AllowedModifiers => allowedModifiers.ToFrozenDictionary();
+
+        public BossProgression Progression { get; private set; } = null!;
+
+        public ulong ManagementServer { get; private set; }
+
+        private GameMode() {  }
+
+        private GameMode(string name, string identifier, IDictionary<string, string> modifiers, BossProgression progression, ulong managementServer)
         {
-            ProgressionTrack = progression.Identifier,
-            AllowedModifiers = allowedModifiers
-        };
-        
-        Registry.Add(identifier, difficulty);
-        return difficulty;
+            Name = name;
+            Identifier = identifier;
+            allowedModifiers = modifiers.ToDictionary();
+            Progression = progression;
+            ManagementServer = managementServer;
+        }
+
+        public static GameMode Make(string name, string identifier, IDictionary<string, string> modifiers, BossProgression progression, ulong managementServer)
+        {
+            GameMode gameMode = new GameMode(name, identifier, modifiers, progression, managementServer);
+            DataBase.GameModes.Add(gameMode);
+            DataBase.Save();
+            return gameMode;
+        }
+
+        public void Delete()
+        {
+            DataBase.GameModes.Remove(this);
+            DataBase.Save();
+        }
     }
-
-    public static readonly Dictionary<string, Difficulty> Registry = [];
-
-    public static readonly Difficulty Revengeance = Make("r", nameof(Revengeance), BossProgression.Calamity, Modifier.DefaultAllowed);
     
-    public static readonly Difficulty Death = Make("d", nameof(Death), BossProgression.Calamity, Modifier.DefaultAllowed);
-    
-    public static readonly Difficulty Malice = Make("m", nameof(Malice), BossProgression.Calamity, Modifier.DefaultAllowed);
-    
-    public static readonly Difficulty Infernum = Make("i", nameof(Infernum), BossProgression.Infernum, Modifier.DefaultAllowed);
-
-    public static readonly Difficulty Empyreal = Make("e", nameof(Empyreal), BossProgression.Empyreal, Modifier.DefaultAllowed);
-    
-    public static readonly Difficulty Thorium = Make("t", nameof(Thorium), BossProgression.Thorium, Modifier.NoneAllowed);
-
-    public static class Modifier
+    public class Modifier
     {
-        public static readonly KeyValuePair<string, string> Defiled = new("d", nameof(Defiled));
-        
-        public static readonly KeyValuePair<string, string> Shroomed = new("s", nameof(Shroomed));
+        public string Name { get; private set; } = null!;
 
-        public static readonly Dictionary<string, string> DefaultAllowed = new([Defiled, Shroomed]);
+        public string Identifier { get; private set; } = null!;
 
-        public static readonly Dictionary<string, string> NoneAllowed = [];
+        public ulong ManagementServer { get; private set; }
+
+        private Modifier() { }
+
+        private Modifier(string name, string identifier, ulong managementServer)
+        {
+            Name = name;
+            Identifier = identifier;
+            ManagementServer = managementServer;
+        }
+
+        public static Modifier Make(string name, string identifier, ulong managementServer)
+        {
+            Modifier modifier = new(name, identifier, managementServer);
+            DataBase.DifficultyModifiers.Add(modifier);
+            DataBase.Save();
+            return modifier;
+        }
+
+        public void Delete()
+        {
+            DataBase.DifficultyModifiers.Remove(this);
+            DataBase.Save();
+        }
     }
 }

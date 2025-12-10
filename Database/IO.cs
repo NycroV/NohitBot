@@ -16,12 +16,6 @@ public partial class DataBase
 
     // Ensures we do not attempt to access the file more than once at the same time.
     private static readonly SemaphoreSlim ioHandle = new(1, 1);
-
-    public static string FileText
-    {
-        get => File.ReadAllText(SavePath);
-        set => File.WriteAllText(SavePath, value);
-    }
     
     static DataBase()
     {
@@ -33,7 +27,7 @@ public partial class DataBase
         }
         
         ioHandle.Wait();
-        string serialized = FileText;
+        string serialized = File.ReadAllText(SavePath);
         instance = JsonConvert.DeserializeObject<DataBase>(serialized, SerializerSettings)!;
         ioHandle.Release();
     }
@@ -42,7 +36,7 @@ public partial class DataBase
     {
         ioHandle.Wait();
         string serialized = JsonConvert.SerializeObject(instance, SerializerSettings);
-        FileText = serialized;
+        File.WriteAllText(SavePath, serialized);
         ioHandle.Release();
     }
 }
