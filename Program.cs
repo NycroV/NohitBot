@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using DSharpPlus;
 using DSharpPlus.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NohitBot.Hosting;
 using NohitBot.Logging;
 using DSharpPlus.Commands;
+using DSharpPlus.EventArgs;
 using NohitBot.Database;
 using NohitBot.Discord;
 
@@ -52,7 +54,7 @@ builder.Services.AddLogging(logger =>
     logger.SetMinimumLevel(LogLevel.Trace);
 });
 
-DiscordBotService.Host =  builder.Build();
+DiscordBotService.Host = builder.Build();
 DiscordBotService.Host.Run();
 
 string executablePath = Environment.ProcessPath!;

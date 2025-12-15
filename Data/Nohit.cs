@@ -18,7 +18,7 @@ public class Nohit
 
     public DateTime TimeStamp { get; init; }
     
-    public string? UserComment { get; set; } = null;
+    public string? UserComment { get; private set; } = null;
     
     public Verification Verification { get; set; } = Verification.Default;
     

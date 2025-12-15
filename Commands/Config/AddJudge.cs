@@ -11,14 +11,9 @@ public class AddJudge
     [Command(nameof(AddJudge))]
     [Description("Adds a user to the server judges list.")]
     [RequireGuild]
+    [RequirePermissions(DiscordPermission.Administrator)]
     public async ValueTask AddJudgeAsync(CommandContext ctx, DiscordMember user)
     {
-        if (!ctx.Member!.Permissions.HasPermission(DiscordPermission.Administrator))
-        {
-            await ctx.RespondAsync("You don't have permission to do that.");
-            return;
-        }
-
         if (!DataBase.DiscordConfigurations.TryGetValue(ctx.Guild!.Id, out var config))
         {
             await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");

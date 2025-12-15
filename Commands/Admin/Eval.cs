@@ -19,7 +19,7 @@ public class Eval
     
     [Command(nameof(Eval))]
     [RequireApplicationOwner]
-    public static async ValueTask EvalAsync(TextCommandContext ctx, [RemainingText]string code)
+    public async ValueTask EvalAsync(TextCommandContext ctx, [RemainingText]string code)
     {
         // ReSharper disable once StringIndexOfIsCultureSpecific.1
         var code_start = code.IndexOf("```") + 3;
