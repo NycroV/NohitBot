@@ -170,9 +170,21 @@ public static partial class Utils
         await context.RespondAsync(message);
     }
 
+    public static async ValueTask<DiscordGuild?> GetGuildSafeAsync(this DiscordClient client, ulong guildId, bool skipCache = false)
+    {
+        try { return await client.GetGuildAsync(guildId, skipCache); }
+        catch {return null; }
+    }
+    
     public static async ValueTask<DiscordChannel?> GetChannelSafeAsync(this DiscordGuild guild, ulong channelId, bool skipCache = false)
     {
         try { return await guild.GetChannelAsync(channelId, skipCache); }
+        catch { return null; }
+    }
+
+    public static async ValueTask<DiscordMessage?> GetMessageSafeAsync(this DiscordChannel channel, ulong messageId, bool skipCache = false)
+    {
+        try { return await channel.GetMessageAsync(messageId, skipCache); }
         catch { return null; }
     }
 }

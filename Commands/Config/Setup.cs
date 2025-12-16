@@ -23,7 +23,7 @@ public class Setup
         {
             var setupMessage = new DiscordMessageBuilder()
                 .EnableV2Components()
-                .AddContainerComponent(new DiscordContainerComponent([
+                .AddContainerComponent(new([
                     new DiscordTextDisplayComponent("## NohitBot v3"),
                     new DiscordTextDisplayComponent("Developed by @nycro"),
                     //new DiscordMediaGalleryComponent([]),
@@ -110,7 +110,12 @@ public class Setup
                 new DiscordActionRowComponent([new DiscordChannelSelectComponent("setup_channel_log", $"#{log}", [DiscordChannelType.Text])]),
                 new DiscordSeparatorComponent(true, DiscordSeparatorSpacing.Large),
                 new DiscordTextDisplayComponent("## Journey Channel\nThe channel where completed nohit journeys should be logged."),
-                new DiscordActionRowComponent([new DiscordChannelSelectComponent("setup_channel_journey", $"#{journey}", [DiscordChannelType.Text])])
+                new DiscordActionRowComponent([new DiscordChannelSelectComponent("setup_channel_journey", $"#{journey}", [DiscordChannelType.Text])]),
+                new DiscordSeparatorComponent(true, DiscordSeparatorSpacing.Large),
+                new DiscordActionRowComponent([
+                    new DiscordButtonComponent(DiscordButtonStyle.Primary, "setup_pin_judgeinfo", "Setup Judge Info"),
+                    new DiscordButtonComponent(DiscordButtonStyle.Primary, "setup_pin_journeytracking", "Setup Journey Tracking"),
+                ])
             ]));
     }
 
@@ -123,14 +128,66 @@ public class Setup
 
         switch (channel)
         {
-            case "submission": config.SubmissionChannelId = id; break;
-            case "log": config.LogChannelId = id; break;
-            case "journey": config.JourneyChannelId = id; break;
+            case "submission": config.SetChannels(submissionId: id); break;
+            case "log": config.SetChannels(logId: id); break;
+            case "journey": config.SetChannels(journeyId: id); break;
         }
-
-        DataBase.Save();
         
         var message = new DiscordInteractionResponseBuilder(await CreateSetupMessageAsync(args.Guild, config));
         await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.UpdateMessage, message);
+    }
+
+    [InteractionResponse("setup_pin")]
+    public static async Task ReceivePinUpdateAsync(ComponentInteractionCreatedEventArgs args)
+    {
+        string pinType = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
+        var modal = new DiscordModalBuilder().WithCustomId($"generate_pin_{pinType}");
+
+        switch (pinType)
+        {
+            case "judgeinfo": modal
+                .WithTitle("Setup Judge Info Pin")
+                .AddSelectMenu(
+                    new DiscordChannelSelectComponent("channel", "#bot-commands", [DiscordChannelType.Text]),
+                    "Channel",
+                    "The channel to post the generated pin in.");
+                break;
+            
+            case "journeytracking": modal
+                .WithTitle("Setup Journey Tracking Pin")
+                .AddSelectMenu(
+                    new DiscordChannelSelectComponent("channel", "#nohit-judging", [DiscordChannelType.Text]),
+                    "Channel",
+                    "The channel to post the generated pin in.");
+                break;
+        }
+        
+        await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Modal, modal);
+    }
+
+    [InteractionResponse("generate_pin")]
+    public static async Task GeneratePinAsync(ModalSubmittedEventArgs args)
+    {
+        string pinType = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
+        ulong channelId = ulong.Parse((args.Values["channel"] as SelectMenuModalSubmission)!.Values[0]);
+        
+        DiscordConfig config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
+        DiscordChannel channel = await args.Interaction.Guild!.GetChannelAsync(channelId);
+        DiscordMessage message = await channel.SendMessageAsync("Generating...");
+
+        await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate);
+
+        switch (pinType)
+        {
+            case "judgeinfo":
+                config.SetJudgeInfoPin(channelId, message.Id);
+                await config.UpdateJudgeInfoPin();
+                break;
+            
+            case "journeytracking":
+                config.SetJourneyTrackingPin(channelId, message.Id);
+                await config.UpdateJourneyTrackingInfoPin();
+                break;
+        }
     }
 }

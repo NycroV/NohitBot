@@ -1,15 +1,20 @@
 ﻿using System.Collections.Frozen;
+using DSharpPlus.Entities;
 using NohitBot.Database;
 
 namespace NohitBot.Data;
 
 public class DiscordConfig
 {
-    public ulong SubmissionChannelId { get; set; } = 0uL;
+    public ulong SubmissionChannelId { get; private set; } = 0uL;
     
-    public ulong LogChannelId { get; set; } = 0uL;
+    public ulong LogChannelId { get; private set; } = 0uL;
     
-    public ulong JourneyChannelId { get; set; } = 0uL;
+    public ulong JourneyChannelId { get; private set; } = 0uL;
+
+    public KeyValuePair<ulong, ulong>? JudgeInfoPinId { get; private set; } = null;
+
+    public KeyValuePair<ulong, ulong>? JourneyTrackingPinId { get; private set; } = null;
 
     private List<ulong> judgeIds { get; init; } = [];
     
@@ -32,6 +37,32 @@ public class DiscordConfig
         return config;
     }
 
+    public void SetChannels(ulong? submissionId = null, ulong? logId = null, ulong? journeyId = null)
+    {
+        bool save = false;
+
+        if (submissionId != null)
+        {
+            SubmissionChannelId = submissionId.Value;
+            save = true;
+        }
+
+        if (logId != null)
+        {
+            LogChannelId = logId.Value;
+            save = true;
+        }
+
+        if (journeyId != null)
+        {
+            JourneyChannelId = journeyId.Value;
+            save = true;
+        }
+        
+        if (save)
+            DataBase.Save();
+    }
+
     public void AddJudge(ulong judgeId)
     {
         judgeIds.Add(judgeId);
@@ -45,6 +76,39 @@ public class DiscordConfig
         
         DataBase.Save();
         return true;
+    }
 
+    public void SetJudgeInfoPin()
+    {
+        JudgeInfoPinId = null;
+        DataBase.Save();
+    }
+    
+    public void SetJudgeInfoPin(ulong channelId, ulong messageId)
+    {
+        JudgeInfoPinId = new(channelId, messageId);
+        DataBase.Save();
+    }
+
+    public void SetJourneyTrackingPin()
+    {
+        JourneyTrackingPinId = null;
+        DataBase.Save();
+    }
+    
+    public void SetJourneyTrackingPin(ulong channelId, ulong messageId)
+    {
+        JourneyTrackingPinId = new(channelId, messageId);
+        DataBase.Save();
+    }
+
+    public async Task UpdateJudgeInfoPin()
+    {
+        
+    }
+
+    public async Task UpdateJourneyTrackingInfoPin()
+    {
+        
     }
 }

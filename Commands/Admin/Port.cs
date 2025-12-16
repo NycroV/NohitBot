@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.TextCommands;
 using NohitBot.Database;
 using NohitBot.Hosting;
 
@@ -9,7 +10,7 @@ public class Port
 {
     [Command(nameof(Port))]
     [RequireApplicationOwner]
-    public async ValueTask PortAsync(CommandContext ctx, string oldId, string newId)
+    public async ValueTask PortAsync(TextCommandContext ctx, string oldId, string newId)
     {
         if (!ulong.TryParse(oldId, out _))
         {
@@ -22,8 +23,7 @@ public class Port
             await ctx.RespondAsync($"Error: `{newId}` is not a valid user ID.");
             return;
         }
-
-        DataBase.Save();
+        
         string text = DataBase.ReadFile();
 
         if (!text.Contains(oldId))

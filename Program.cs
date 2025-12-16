@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using DSharpPlus;
 using DSharpPlus.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,12 +6,16 @@ using Microsoft.Extensions.Logging;
 using NohitBot.Hosting;
 using NohitBot.Logging;
 using DSharpPlus.Commands;
-using DSharpPlus.EventArgs;
 using NohitBot.Database;
 using NohitBot.Discord;
 
 //----------------------//
 //----------------------//
+
+const string RestartPath = "Restart.bat";
+
+if (File.Exists(RestartPath))
+    File.Delete(RestartPath);
 
 var workingDirectory = Directory.CreateDirectory("BotFiles");
 Directory.SetCurrentDirectory(workingDirectory.FullName);
@@ -57,6 +60,10 @@ builder.Services.AddLogging(logger =>
 DiscordBotService.Host = builder.Build();
 DiscordBotService.Host.Run();
 
-string executablePath = Environment.ProcessPath!;
-Process.Start(executablePath);
+Directory.SetCurrentDirectory(workingDirectory.Parent!.FullName);
+string resetCommand = $"@echo off\nstart \"\" \"{Environment.ProcessPath!}\"";
+
+File.WriteAllText(RestartPath, resetCommand);
+Process.Start(RestartPath);
+
 Environment.Exit(0);

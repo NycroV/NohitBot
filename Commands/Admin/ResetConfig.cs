@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Processors.TextCommands;
 using NohitBot.Database;
 
 namespace NohitBot.Commands.Admin;
@@ -8,7 +9,7 @@ public class ResetConfig
 {
     [Command(nameof(ResetConfig))]
     [RequireApplicationOwner]
-    public static async Task DestroyConfigAsync(CommandContext ctx, string guildId)
+    public static async Task DestroyConfigAsync(TextCommandContext ctx, string guildId)
     {
         if (!ulong.TryParse(guildId, out ulong id))
         {
