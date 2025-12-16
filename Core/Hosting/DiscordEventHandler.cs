@@ -116,15 +116,6 @@ namespace NohitBot.Hosting
                     if (serviceType is not null)
                         events.Services.TryAddSingleton(serviceType);
 
-                    events.Services.Configure<EventHandlerCollection>(collection =>
-                    {
-                        var handlers = collection.Handlers();
-                        handlers.TryAdd(eventType, []);
-                        handlers[eventType].Add((Handler)WrapInteraction);
-                    });
-                    
-                    continue;
-
                     Task WrapInteraction(DiscordClient client, DiscordEventArgs args, IServiceProvider provider)
                     {
                         object? invocationObject = serviceType is null ? null : provider.GetRequiredService(serviceType);
@@ -134,6 +125,13 @@ namespace NohitBot.Hosting
 
                         return Task.CompletedTask;
                     }
+                    
+                    events.Services.Configure<EventHandlerCollection>(collection =>
+                    {
+                        var handlers = collection.Handlers();
+                        handlers.TryAdd(eventType, []);
+                        handlers[eventType].Add((Handler)WrapInteraction);
+                    });
                 }
             });
         }

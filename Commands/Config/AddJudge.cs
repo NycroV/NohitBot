@@ -14,7 +14,7 @@ public class AddJudge
     [RequirePermissions(DiscordPermission.Administrator)]
     public async ValueTask AddJudgeAsync(CommandContext ctx, DiscordMember user)
     {
-        if (!DataBase.DiscordConfigurations.TryGetValue(ctx.Guild!.Id, out var config))
+        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config))
         {
             await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");
             return;

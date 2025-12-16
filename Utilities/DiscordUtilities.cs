@@ -169,4 +169,10 @@ public static partial class Utils
 
         await context.RespondAsync(message);
     }
+
+    public static async ValueTask<DiscordChannel?> GetChannelSafeAsync(this DiscordGuild guild, ulong channelId, bool skipCache = false)
+    {
+        try { return await guild.GetChannelAsync(channelId, skipCache); }
+        catch { return null; }
+    }
 }

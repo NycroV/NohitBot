@@ -5,7 +5,7 @@ namespace NohitBot.Database;
 
 public partial class DataBase
 {
-    [JsonProperty] private readonly Dictionary<ulong, DiscordConfiguration> discordConfigurations = [];
+    [JsonProperty] private readonly Dictionary<ulong, DiscordConfig> discordConfigs = [];
     
-    public static Dictionary<ulong, DiscordConfiguration> DiscordConfigurations => instance.discordConfigurations;
+    public static Dictionary<ulong, DiscordConfig> DiscordConfigs => instance.discordConfigs;
 }

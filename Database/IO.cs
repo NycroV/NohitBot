@@ -5,7 +5,7 @@ namespace NohitBot.Database;
 [JsonObject(MemberSerialization.OptOut)]
 public partial class DataBase
 {
-    public const string SavePath = "DataBase.json;";
+    public const string SavePath = "DataBase.json";
     
     private static readonly DataBase instance;
     

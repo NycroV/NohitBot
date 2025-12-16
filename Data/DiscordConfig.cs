@@ -3,7 +3,7 @@ using NohitBot.Database;
 
 namespace NohitBot.Data;
 
-public class DiscordConfiguration
+public class DiscordConfig
 {
     public ulong SubmissionChannelId { get; set; } = 0uL;
     
@@ -11,23 +11,25 @@ public class DiscordConfiguration
     
     public ulong JourneyChannelId { get; set; } = 0uL;
 
-    private List<ulong> judgeIds { get; init; } = null!;
+    private List<ulong> judgeIds { get; init; } = [];
     
     public FrozenSet<ulong> JudgeIds => judgeIds.ToFrozenSet();
 
-    private DiscordConfiguration(ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
+    private DiscordConfig() { }
+
+    private DiscordConfig(ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
     {
         SubmissionChannelId = submissionChannelId;
         LogChannelId = logChannelId;
         JourneyChannelId = journeyChannelId;
     }
 
-    public static DiscordConfiguration Make(ulong guildId, ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
+    public static DiscordConfig Make(ulong guildId, ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
     {
-        DiscordConfiguration configuration = new(submissionChannelId, logChannelId, journeyChannelId);
-        DataBase.DiscordConfigurations.Add(guildId, configuration);
+        DiscordConfig config = new(submissionChannelId, logChannelId, journeyChannelId);
+        DataBase.DiscordConfigs.Add(guildId, config);
         DataBase.Save();
-        return configuration;
+        return config;
     }
 
     public void AddJudge(ulong judgeId)
