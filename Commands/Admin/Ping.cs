@@ -9,7 +9,7 @@ public class Ping
 {
     [Command(nameof(Ping))]
     [RequireApplicationOwner]
-    public async ValueTask PingAsync(TextCommandContext ctx, [RemainingText] string input)
+    public static async ValueTask PingAsync(TextCommandContext ctx, [RemainingText] string input)
     {
         Console.WriteLine(input);
         await ctx.Channel.SendMessageAsync(input);

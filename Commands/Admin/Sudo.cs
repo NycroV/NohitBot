@@ -13,7 +13,7 @@ public class Sudo
     [Command(nameof(Sudo))]
     [RequireApplicationOwner]
     [RequireGuild]
-    public async ValueTask SudoAsync(TextCommandContext ctx, DiscordMember member, [RemainingText] string command)
+    public static async ValueTask SudoAsync(TextCommandContext ctx, DiscordMember member, [RemainingText] string command)
     {
         var sudoCtx = ctx with { User = member };
         string content = $"{ctx.Client.CurrentUser.Mention} {command}";

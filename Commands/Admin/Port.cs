@@ -10,7 +10,7 @@ public class Port
 {
     [Command(nameof(Port))]
     [RequireApplicationOwner]
-    public async ValueTask PortAsync(TextCommandContext ctx, string oldId, string newId)
+    public static async ValueTask PortAsync(TextCommandContext ctx, string oldId, string newId)
     {
         if (!ulong.TryParse(oldId, out _))
         {

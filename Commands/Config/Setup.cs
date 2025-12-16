@@ -17,7 +17,7 @@ public class Setup
     [Description("Sets up/configures settings for the server.")]
     [RequireGuild]
     [RequirePermissions(DiscordPermission.Administrator)]
-    public async ValueTask SetupAsync(CommandContext ctx)
+    public static async ValueTask SetupAsync(CommandContext ctx)
     {
         if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config))
         {
@@ -69,7 +69,7 @@ public class Setup
     }
 
     [InteractionResponse("SETUP_RESPONSE")]
-    public static async Task ReceiveModalAsync(ModalSubmittedEventArgs args)
+    public static async ValueTask ReceiveModalAsync(ModalSubmittedEventArgs args)
     {
         ulong ChannelId(string customId) => (args.Values[customId] as ChannelSelectMenuModalSubmission)!.Ids[0];
         
@@ -93,7 +93,7 @@ public class Setup
         await message.ModifyAsync(messageBuilder);
     }
 
-    private static async Task<DiscordMessageBuilder> CreateSetupMessageAsync(DiscordGuild guild, DiscordConfig config)
+    private static async ValueTask<DiscordMessageBuilder> CreateSetupMessageAsync(DiscordGuild guild, DiscordConfig config)
     {
         string submission = (await guild.GetChannelSafeAsync(config.SubmissionChannelId))?.Name ?? "nohit-submissions";
         string log = (await guild.GetChannelSafeAsync(config.LogChannelId))?.Name ?? "nohit-logs";
@@ -120,7 +120,7 @@ public class Setup
     }
 
     [InteractionResponse("setup_channel")]
-    public static async Task ReceiveConfigUpdateAsync(ComponentInteractionCreatedEventArgs args)
+    public static async ValueTask ReceiveConfigUpdateAsync(ComponentInteractionCreatedEventArgs args)
     {
         DiscordConfig config = DataBase.DiscordConfigs[args.Guild.Id];
         string channel = args.Interaction.Data.CustomId.Replace("setup_channel_", "");
@@ -138,7 +138,7 @@ public class Setup
     }
 
     [InteractionResponse("setup_pin")]
-    public static async Task ReceivePinUpdateAsync(ComponentInteractionCreatedEventArgs args)
+    public static async ValueTask ReceivePinUpdateAsync(ComponentInteractionCreatedEventArgs args)
     {
         string pinType = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
         var modal = new DiscordModalBuilder().WithCustomId($"generate_pin_{pinType}");
@@ -166,7 +166,7 @@ public class Setup
     }
 
     [InteractionResponse("generate_pin")]
-    public static async Task GeneratePinAsync(ModalSubmittedEventArgs args)
+    public static async ValueTask GeneratePinAsync(ModalSubmittedEventArgs args)
     {
         string pinType = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
         ulong channelId = ulong.Parse((args.Values["channel"] as SelectMenuModalSubmission)!.Values[0]);

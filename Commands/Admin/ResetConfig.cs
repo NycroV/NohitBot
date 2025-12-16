@@ -9,7 +9,7 @@ public class ResetConfig
 {
     [Command(nameof(ResetConfig))]
     [RequireApplicationOwner]
-    public static async Task DestroyConfigAsync(TextCommandContext ctx, string guildId)
+    public static async ValueTask DestroyConfigAsync(TextCommandContext ctx, string guildId)
     {
         if (!ulong.TryParse(guildId, out ulong id))
         {

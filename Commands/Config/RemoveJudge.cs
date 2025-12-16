@@ -12,7 +12,7 @@ public class RemoveJudge
     [Description("Removes a user from the server judges list.")]
     [RequireGuild]
     [RequirePermissions(DiscordPermission.Administrator)]
-    public async ValueTask RemoveJudgeAsync(CommandContext ctx, DiscordMember user)
+    public static async ValueTask RemoveJudgeAsync(CommandContext ctx, DiscordMember user)
     {
         if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config))
         {

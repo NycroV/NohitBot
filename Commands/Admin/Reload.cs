@@ -12,13 +12,13 @@ namespace NohitBot.Commands.Admin;
 
 public class Reload(DiscordClient client) : DiscordEventHandler<ClientStartedEventArgs>
 {
-    private DiscordClient Client { get; init; } = client;
+    private DiscordClient Client { get; } = client;
     
     public const string ReloadInfoPath = "ReloadInfo.txt";
     
     [Command(nameof(Reload))]
     [RequireApplicationOwner]
-    public async ValueTask ReloadAsync(TextCommandContext ctx)
+    public static async ValueTask ReloadAsync(TextCommandContext ctx)
     {
         await ctx.RespondAsync("Reloading...");
         var message = await ctx.GetResponseAsync();

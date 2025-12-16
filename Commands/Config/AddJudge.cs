@@ -12,7 +12,7 @@ public class AddJudge
     [Description("Adds a user to the server judges list.")]
     [RequireGuild]
     [RequirePermissions(DiscordPermission.Administrator)]
-    public async ValueTask AddJudgeAsync(CommandContext ctx, DiscordMember user)
+    public static async ValueTask AddJudgeAsync(CommandContext ctx, DiscordMember user)
     {
         if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config))
         {

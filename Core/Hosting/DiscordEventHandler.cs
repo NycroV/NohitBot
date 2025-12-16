@@ -20,15 +20,16 @@ namespace NohitBot.Hosting
         public async Task HandleEventAsync(DiscordClient sender, TEventArgs args)
         {
             SemaphoreSlim semaphore;
-
+            var type = this.GetType();
+            
             lock (eventAccess)
             {
-                eventAccess.TryAdd(this.GetType(), new(1, 1));
-                semaphore = eventAccess[this.GetType()];
+                eventAccess.TryAdd(type, new(1, 1));
+                semaphore = eventAccess[type];
             }
 
             await semaphore.WaitAsync();
-            await DiscordBotService.CommandAccess.WaitAsync();
+            //await DiscordBotService.CommandAccess.WaitAsync();
 
             try
             {
@@ -36,7 +37,7 @@ namespace NohitBot.Hosting
             }
             finally
             {
-                DiscordBotService.CommandAccess.Release();
+                //DiscordBotService.CommandAccess.Release();
                 semaphore.Release();
             }
         }
