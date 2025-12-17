@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NohitBot.Database;
 
-namespace NohitBot.Data;
+namespace NohitBot.DataStructures;
 
 [JsonObject(MemberSerialization.OptOut)]
 public class Nohit

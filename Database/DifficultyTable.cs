@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using NohitBot.Data;
+using NohitBot.DataStructures;
 
 namespace NohitBot.Database;
 

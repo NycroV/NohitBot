@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Frozen;
 using Newtonsoft.Json;
-using NohitBot.Data;
+using NohitBot.DataStructures;
 using NohitBot.Database;
 
-namespace NohitBot.Data;
+namespace NohitBot.DataStructures;
 
 public readonly struct Difficulty(Difficulty.GameMode gameMode, string[] modifiers) : IEquatable<Difficulty>
 {

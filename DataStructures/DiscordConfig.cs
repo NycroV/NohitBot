@@ -2,7 +2,7 @@
 using DSharpPlus.Entities;
 using NohitBot.Database;
 
-namespace NohitBot.Data;
+namespace NohitBot.DataStructures;
 
 public class DiscordConfig
 {

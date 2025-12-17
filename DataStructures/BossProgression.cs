@@ -2,7 +2,7 @@
 using System.Collections.Frozen;
 using NohitBot.Database;
 
-namespace NohitBot.Data;
+namespace NohitBot.DataStructures;
 
 public class BossProgression
 {

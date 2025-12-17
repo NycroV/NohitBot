@@ -2,7 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
-using NohitBot.Data;
+using NohitBot.DataStructures;
 using NohitBot.Database;
 
 namespace NohitBot.Commands.Config;

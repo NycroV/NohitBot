@@ -1,4 +1,4 @@
-﻿namespace NohitBot.Data;
+﻿namespace NohitBot.DataStructures;
 
 public struct Verification(VerificationStatus reviewStatus)
 {
