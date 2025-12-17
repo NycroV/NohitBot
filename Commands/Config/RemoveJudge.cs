@@ -20,10 +20,13 @@ public class RemoveJudge
             return;
         }
 
-        if (config.RemoveJudge(user.Id))
-            await ctx.RespondAsync("Judge removed!");
-        
-        else
+        if (!config.RemoveJudge(user.Id))
+        {
             await ctx.RespondAsync("Specified user is not a judge.");
+            return;
+        }
+        
+        await ctx.RespondAsync("Judge removed!");
+        await config.UpdateJudgeInfoPin();
     }
 }

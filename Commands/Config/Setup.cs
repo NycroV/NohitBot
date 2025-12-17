@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
@@ -72,23 +71,23 @@ public class Setup
     public static async ValueTask ReceiveModalAsync(ModalSubmittedEventArgs args)
     {
         ulong ChannelId(string customId) => (args.Values[customId] as ChannelSelectMenuModalSubmission)!.Ids[0];
-        
+
         ulong submissions = ChannelId("setup_submission");
         ulong logs = ChannelId("setup_log");
         ulong journey = ChannelId("setup_journey");
-        
+
         DiscordConfig config = DiscordConfig.Make(args.Interaction.GuildId!.Value, submissions, logs, journey);
         var messageBuilder = await CreateSetupMessageAsync(args.Interaction.Guild!, config);
 
         string setupId = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
         string[] setupComponents = setupId.Split('/');
-        
+
         ulong channelId = ulong.Parse(setupComponents[0]);
         ulong messageId = ulong.Parse(setupComponents[1]);
-        
+
         DiscordChannel channel = await args.Interaction.Guild!.GetChannelAsync(channelId);
         DiscordMessage message = await channel.GetMessageAsync(messageId);
-        
+
         await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate);
         await message.ModifyAsync(messageBuilder);
     }
@@ -98,7 +97,7 @@ public class Setup
         string submission = (await guild.GetChannelSafeAsync(config.SubmissionChannelId))?.Name ?? "nohit-submissions";
         string log = (await guild.GetChannelSafeAsync(config.LogChannelId))?.Name ?? "nohit-logs";
         string journey = (await guild.GetChannelSafeAsync(config.JourneyChannelId))?.Name ?? "nohit-journeys";
-            
+
         // Submission -> Log -> Journey
         return new DiscordMessageBuilder()
             .EnableV2Components()
@@ -115,6 +114,7 @@ public class Setup
                 new DiscordActionRowComponent([
                     new DiscordButtonComponent(DiscordButtonStyle.Primary, "setup_pin_judgeinfo", "Setup Judge Info"),
                     new DiscordButtonComponent(DiscordButtonStyle.Primary, "setup_pin_journeytracking", "Setup Journey Tracking"),
+                    new DiscordButtonComponent(DiscordButtonStyle.Primary, "setup_doc", "Setup Doc")
                 ])
             ]));
     }
@@ -132,7 +132,7 @@ public class Setup
             case "log": config.SetChannels(logId: id); break;
             case "journey": config.SetChannels(journeyId: id); break;
         }
-        
+
         var message = new DiscordInteractionResponseBuilder(await CreateSetupMessageAsync(args.Guild, config));
         await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.UpdateMessage, message);
     }
@@ -145,23 +145,25 @@ public class Setup
 
         switch (pinType)
         {
-            case "judgeinfo": modal
-                .WithTitle("Setup Judge Info Pin")
-                .AddSelectMenu(
-                    new DiscordChannelSelectComponent("channel", "#bot-commands", [DiscordChannelType.Text]),
-                    "Channel",
-                    "The channel to post the generated pin in.");
+            case "judgeinfo":
+                modal
+                    .WithTitle("Setup Judge Info Pin")
+                    .AddSelectMenu(
+                        new DiscordChannelSelectComponent("channel", "#bot-commands", [DiscordChannelType.Text]),
+                        "Channel",
+                        "The channel to post the generated pin in.");
                 break;
-            
-            case "journeytracking": modal
-                .WithTitle("Setup Journey Tracking Pin")
-                .AddSelectMenu(
-                    new DiscordChannelSelectComponent("channel", "#nohit-judging", [DiscordChannelType.Text]),
-                    "Channel",
-                    "The channel to post the generated pin in.");
+
+            case "journeytracking":
+                modal
+                    .WithTitle("Setup Journey Tracking Pin")
+                    .AddSelectMenu(
+                        new DiscordChannelSelectComponent("channel", "#nohit-judging", [DiscordChannelType.Text]),
+                        "Channel",
+                        "The channel to post the generated pin in.");
                 break;
         }
-        
+
         await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Modal, modal);
     }
 
@@ -170,7 +172,7 @@ public class Setup
     {
         string pinType = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
         ulong channelId = ulong.Parse((args.Values["channel"] as SelectMenuModalSubmission)!.Values[0]);
-        
+
         DiscordConfig config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
         DiscordChannel channel = await args.Interaction.Guild!.GetChannelAsync(channelId);
         DiscordMessage message = await channel.SendMessageAsync("Generating...");
@@ -183,11 +185,39 @@ public class Setup
                 config.SetJudgeInfoPin(channelId, message.Id);
                 await config.UpdateJudgeInfoPin();
                 break;
-            
+
             case "journeytracking":
                 config.SetJourneyTrackingPin(channelId, message.Id);
                 await config.UpdateJourneyTrackingInfoPin();
                 break;
         }
+    }
+
+    [InteractionResponse("setup_doc")]
+    public static async ValueTask SetupDocMessage(ComponentInteractionCreatedEventArgs args)
+    {
+        var config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
+
+        var modal = new DiscordModalBuilder()
+            .WithTitle("Setup Doc")
+            .WithCustomId("doc_response")
+            .AddTextInput(new(
+                "message", 
+                "Here you go: https://docs.google.com/...", 
+                config.DocMessage, 
+                true,
+                DiscordTextInputStyle.Paragraph),
+                "Document Response", "The message the bot will send in response to the /doc command.\nProvide users with info about your nohitting rules.");
+
+        await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Modal, modal);
+    }
+
+    [InteractionResponse("doc_response")]
+    public static async ValueTask ReceiveDocMessage(ModalSubmittedEventArgs args)
+    {
+        var config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
+        string message = (args.Values["message"] as TextInputModalSubmission)!.Value;
+        config.SetDocMessage(message);
+        await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate);
     }
 }

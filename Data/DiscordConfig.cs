@@ -20,6 +20,8 @@ public class DiscordConfig
     
     public FrozenSet<ulong> JudgeIds => judgeIds.ToFrozenSet();
 
+    public string? DocMessage { get; private set; } = null;
+
     private DiscordConfig() { }
 
     private DiscordConfig(ulong submissionChannelId, ulong logChannelId, ulong journeyChannelId)
@@ -110,5 +112,11 @@ public class DiscordConfig
     public async Task UpdateJourneyTrackingInfoPin()
     {
         
+    }
+
+    public void SetDocMessage(string message)
+    {
+        DocMessage = message;
+        DataBase.Save();
     }
 }

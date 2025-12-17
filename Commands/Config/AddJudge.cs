@@ -2,6 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
+using NohitBot.Data;
 using NohitBot.Database;
 
 namespace NohitBot.Commands.Config;
@@ -27,6 +28,9 @@ public class AddJudge
         }
         
         config.AddJudge(user.Id);
+        JudgeProfile.Make(user.Id, user.Username, "set up their judge profile");
+        
         await ctx.RespondAsync("Judge added!");
+        await config.UpdateJudgeInfoPin();
     }
 }
