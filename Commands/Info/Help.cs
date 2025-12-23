@@ -30,9 +30,9 @@ public class Help(CommandsExtension commands) : DiscordEventHandler<ClientStarte
     
     public override Task HandleAsync(ClientStartedEventArgs args)
     {
-        AllHelpCommands = commands.Commands.Values.Where(c => c.Attributes.Any(a => a.GetType()! == typeof(AllHelpAttribute))).ToFrozenSet();
-        JudgeHelpCommands = commands.Commands.Values.Where(c => c.Attributes.Any(a => a.GetType()! == typeof(JudgeHelpAttribute))).ToFrozenSet();
-        AdminHelpCommands = commands.Commands.Values.Where(c => c.Attributes.Any(a => a.GetType()! == typeof(AdminHelpAttribute))).ToFrozenSet();
+        AllHelpCommands = commands.Commands.Values.Where(c => c.Attributes.Any(a => a.GetType()! == typeof(AllHelpAttribute))).OrderBy(c => c.Name).ToFrozenSet();
+        JudgeHelpCommands = commands.Commands.Values.Where(c => c.Attributes.Any(a => a.GetType()! == typeof(JudgeHelpAttribute))).OrderBy(c => c.Name).ToFrozenSet();
+        AdminHelpCommands = commands.Commands.Values.Where(c => c.Attributes.Any(a => a.GetType()! == typeof(AdminHelpAttribute))).OrderBy(c => c.Name).ToFrozenSet();
         return Task.CompletedTask;
     }
     
