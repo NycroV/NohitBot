@@ -24,6 +24,8 @@ public class Nohit
     
     [JsonIgnore] public Journey Journey => DataBase.Journeys[UserID][Difficulty];
 
+    [JsonIgnore] public bool Deleted => UserID == 0uL;
+
     private Nohit() { }
 
     public Nohit(ulong userId, Boss boss, Difficulty difficulty, string url)
