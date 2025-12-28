@@ -14,8 +14,8 @@ public class Info
             .WithColor(DiscordColor.Aquamarine)
             .WithTitle("NohitBot v3")
             .WithDescription("Developed and maintained by @nycro.\nReach out for bug reports, feature requests, or questions!")
-            .WithFooter()
-            .WithThumbnail();
+            /*.WithFooter()
+            .WithThumbnail()*/;
         
         await ctx.RespondAsync(embed);
     }

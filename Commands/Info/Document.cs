@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Commands;
+﻿using System.ComponentModel;
+using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using NohitBot.Database;
 
@@ -7,6 +8,8 @@ namespace NohitBot.Commands.Info;
 public class Document
 {
     [Command(nameof(Document))]
+    [Description("Links to this server's nohit rules document.")]
+    [Help.AllHelp]
     [RequireGuild]
     public static async ValueTask DocumentAsync(CommandContext ctx)
     {

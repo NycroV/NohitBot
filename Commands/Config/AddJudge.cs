@@ -2,6 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
+using NohitBot.Commands.Info;
 using NohitBot.DataStructures;
 using NohitBot.Database;
 
@@ -11,6 +12,7 @@ public class AddJudge
 {
     [Command(nameof(AddJudge))]
     [Description("Adds a user to the server judges list.")]
+    [Help.AdminHelp]
     [RequireGuild]
     [RequirePermissions(DiscordPermission.Administrator)]
     public static async ValueTask AddJudgeAsync(CommandContext ctx, DiscordMember user)

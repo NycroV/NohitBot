@@ -2,6 +2,7 @@
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
+using NohitBot.Commands.Info;
 using NohitBot.Database;
 
 namespace NohitBot.Commands.Config;
@@ -10,6 +11,7 @@ public class RemoveJudge
 {
     [Command(nameof(RemoveJudge))]
     [Description("Removes a user from the server judges list.")]
+    [Help.AdminHelp]
     [RequireGuild]
     [RequirePermissions(DiscordPermission.Administrator)]
     public static async ValueTask RemoveJudgeAsync(CommandContext ctx, DiscordMember user)

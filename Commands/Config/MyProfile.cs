@@ -4,6 +4,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using NohitBot.Commands.Info;
 using NohitBot.DataStructures;
 using NohitBot.Database;
 using NohitBot.Hosting;
@@ -22,6 +23,7 @@ public class MyProfile(DiscordClient client) : DiscordEventHandler<ClientStarted
     
     [Command(nameof(MyProfile))]
     [Description("Allows you to edit your nohit judge presence.")]
+    [Help.JudgeHelp]
     [RequireGuild]
     public static async ValueTask MyProfileAsync(CommandContext ctx)
     {

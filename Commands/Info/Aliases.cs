@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using System.ComponentModel;
+using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
@@ -23,6 +24,8 @@ public class Aliases(DiscordClient client) : DiscordEventHandler<ClientStartedEv
     }
     
     [Command(nameof(Aliases))]
+    [Description("Lists all the aliases for bosses.")]
+    [Help.AllHelp]
     [RequireGuild]
     public static async ValueTask AliasesAsync(CommandContext ctx)
     {

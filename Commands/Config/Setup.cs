@@ -3,6 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using NohitBot.Commands.Info;
 using NohitBot.DataStructures;
 using NohitBot.Database;
 using NohitBot.Hosting;
@@ -14,6 +15,7 @@ public class Setup
 {
     [Command(nameof(Setup))]
     [Description("Sets up/configures settings for the server.")]
+    [Help.AdminHelp]
     [RequireGuild]
     [RequirePermissions(DiscordPermission.Administrator)]
     public static async ValueTask SetupAsync(CommandContext ctx)
