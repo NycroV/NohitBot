@@ -1,5 +1,6 @@
 ﻿using System.Collections.Frozen;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 using NohitBot.Database;
 
 namespace NohitBot.DataStructures;
@@ -18,7 +19,13 @@ public class DiscordConfig
 
     private List<ulong> judgeIds { get; init; } = [];
     
+    [JsonIgnore]
     public FrozenSet<ulong> JudgeIds => judgeIds.ToFrozenSet();
+
+    private Dictionary<ulong, List<Difficulty>> ignoredJourneys { get; init; } = [];
+    
+    [JsonIgnore]
+    public FrozenDictionary<ulong, FrozenSet<Difficulty>> IgnoredJourneys => ignoredJourneys.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenSet());
 
     public string? DocMessage { get; private set; } = null;
 
@@ -76,6 +83,27 @@ public class DiscordConfig
         if (!judgeIds.Remove(judgeId))
             return false;
         
+        DataBase.Save();
+        return true;
+    }
+    
+    /// <returns>True if the journey is now being ignored; otherwise false</returns>
+    public bool ToggleIgnoreJourney(ulong userId, Difficulty difficulty)
+    {
+        if (!ignoredJourneys.TryGetValue(userId, out var journeys))
+        {
+            ignoredJourneys.Add(userId, [difficulty]);
+            DataBase.Save();
+            return true;
+        }
+
+        if (journeys.Remove(difficulty))
+        {
+            DataBase.Save();
+            return false;
+        }
+        
+        journeys.Add(difficulty);
         DataBase.Save();
         return true;
     }

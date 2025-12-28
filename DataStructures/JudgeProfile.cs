@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Frozen;
+using Newtonsoft.Json;
 using NohitBot.Database;
 
 namespace NohitBot.DataStructures;
@@ -14,6 +15,7 @@ public class JudgeProfile
     
     private List<string> aliases { get; set; } = null!;
     
+    [JsonIgnore]
     public FrozenSet<string> Aliases => aliases.ToFrozenSet();
     
     private JudgeProfile() { }

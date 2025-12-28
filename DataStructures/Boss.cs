@@ -11,6 +11,7 @@ public class Boss
 
     private List<string> aliases { get; init; } = null!;
 
+    [JsonIgnore]
     public FrozenSet<string> Aliases => aliases.ToFrozenSet();
 
     public ulong ManagementServer { get; init; }

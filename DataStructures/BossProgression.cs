@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Frozen;
+using Newtonsoft.Json;
 using NohitBot.Database;
 
 namespace NohitBot.DataStructures;
@@ -10,12 +11,16 @@ public class BossProgression
     
     private List<BossContainer> progression { get; init; } = null!;
 
+    [JsonIgnore]
     public FrozenSet<BossContainer> Progression => progression.ToFrozenSet();
 
+    [JsonIgnore]
     public FrozenSet<Boss> Bosses => Progression.Select(c => c.Boss).ToFrozenSet();
 
+    [JsonIgnore]
     public FrozenSet<Boss> RequiredBosses => Progression.Where(c => !c.Optional).Select(c => c.Boss).ToFrozenSet();
     
+    [JsonIgnore]
     public FrozenSet<Boss> OptionalBosses => Progression.Where(c => c.Optional).Select(c => c.Boss).ToFrozenSet();
     
     public ulong ManagementServer { get; init; }

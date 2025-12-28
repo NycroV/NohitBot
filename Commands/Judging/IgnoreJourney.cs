@@ -4,6 +4,8 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using NohitBot.Commands.Info;
+using NohitBot.Database;
+using NohitBot.DataStructures;
 
 namespace NohitBot.Commands.Judging;
 
@@ -14,8 +16,32 @@ public class IgnoreJourney
     [Description("Prevents the bot from automatically reporting a user's complete journey")]
     [Help.JudgeHelp]
     [RequireGuild]
-    public static async Task IgnoreJourneyAsync(CommandContext ctx, DiscordMember member, string difficulty)
+    public static async Task IgnoreJourneyAsync(CommandContext ctx, DiscordMember member, string difficultyCode)
     {
+        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config)) 
+        {
+            await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");
+            return;
+        }
         
+        if (!config.JudgeIds.Contains(ctx.User.Id))
+        {
+            await ctx.RespondAsync("You are not a judge in this server!");
+            return;
+        }
+
+        if (!Difficulty.TryParse(difficultyCode, ctx.Guild!.Id, out var difficulty, out var error))
+        {
+            await ctx.RespondAsync(error);
+            return;
+        }
+
+        if (config.ToggleIgnoreJourney(member.Id, difficulty.Value))
+            await ctx.RespondAsync($"`@{member.Username}`'s journey on \"{difficulty}\" is now being ignored.");
+
+        else
+            await ctx.RespondAsync($"`@{member.Username}`'s journey on \"{difficulty}\" is no longer being ignored.");
+
+        await config.UpdateJourneyTrackingInfoPin();
     }
 }
