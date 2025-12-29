@@ -4,8 +4,8 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using NohitBot.Commands.Info;
-using NohitBot.DataStructures;
 using NohitBot.Database;
+using NohitBot.DataStructures;
 using NohitBot.Hosting;
 using NohitBot.Utilities;
 
@@ -20,9 +20,9 @@ public class Setup
     [RequirePermissions(DiscordPermission.Administrator)]
     public static async ValueTask SetupAsync(CommandContext ctx)
     {
-        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config))
+        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out DiscordConfig? config))
         {
-            var setupMessage = new DiscordMessageBuilder()
+            DiscordMessageBuilder setupMessage = new DiscordMessageBuilder()
                 .EnableV2Components()
                 .AddContainerComponent(new([
                     new DiscordTextDisplayComponent("## NohitBot v3"),
@@ -50,7 +50,7 @@ public class Setup
             return;
         }
 
-        var modal = new DiscordModalBuilder()
+        DiscordModalBuilder modal = new DiscordModalBuilder()
             .WithTitle("Server Setup")
             .WithCustomId($"SETUP_RESPONSE_{args.Channel.Id}/{args.Message.Id}")
             .AddSelectMenu(
@@ -72,14 +72,17 @@ public class Setup
     [InteractionResponse("SETUP_RESPONSE")]
     public static async ValueTask ReceiveModalAsync(ModalSubmittedEventArgs args)
     {
-        ulong ChannelId(string customId) => (args.Values[customId] as ChannelSelectMenuModalSubmission)!.Ids[0];
+        ulong ChannelId(string customId)
+        {
+            return (args.Values[customId] as ChannelSelectMenuModalSubmission)!.Ids[0];
+        }
 
         ulong submissions = ChannelId("setup_submission");
         ulong logs = ChannelId("setup_log");
         ulong journey = ChannelId("setup_journey");
 
-        DiscordConfig config = DiscordConfig.Make(args.Interaction.GuildId!.Value, submissions, logs, journey);
-        var messageBuilder = await CreateSetupMessageAsync(args.Interaction.Guild!, config);
+        var config = DiscordConfig.Make(args.Interaction.GuildId!.Value, submissions, logs, journey);
+        DiscordMessageBuilder messageBuilder = await CreateSetupMessageAsync(args.Interaction.Guild!, config);
 
         string setupId = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
         string[] setupComponents = setupId.Split('/');
@@ -130,7 +133,7 @@ public class Setup
 
         switch (channel)
         {
-            case "submission": config.SetChannels(submissionId: id); break;
+            case "submission": config.SetChannels(id); break;
             case "log": config.SetChannels(logId: id); break;
             case "journey": config.SetChannels(journeyId: id); break;
         }
@@ -143,7 +146,7 @@ public class Setup
     public static async ValueTask ReceivePinUpdateAsync(ComponentInteractionCreatedEventArgs args)
     {
         string pinType = args.Interaction.Data.CustomId.Split('_')[^1].Trim();
-        var modal = new DiscordModalBuilder().WithCustomId($"generate_pin_{pinType}");
+        DiscordModalBuilder modal = new DiscordModalBuilder().WithCustomId($"generate_pin_{pinType}");
 
         switch (pinType)
         {
@@ -198,17 +201,17 @@ public class Setup
     [InteractionResponse("setup_doc")]
     public static async ValueTask SetupDocMessage(ComponentInteractionCreatedEventArgs args)
     {
-        var config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
+        DiscordConfig config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
 
-        var modal = new DiscordModalBuilder()
+        DiscordModalBuilder modal = new DiscordModalBuilder()
             .WithTitle("Setup Doc")
             .WithCustomId("doc_response")
             .AddTextInput(new(
-                "message", 
-                "Here you go: https://docs.google.com/...", 
-                config.DocMessage, 
-                true,
-                DiscordTextInputStyle.Paragraph),
+                    "message",
+                    "Here you go: https://docs.google.com/...",
+                    config.DocMessage,
+                    true,
+                    DiscordTextInputStyle.Paragraph),
                 "Document Response", "The message the bot will send in response to the /doc command.\nProvide users with info about your nohitting rules.");
 
         await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Modal, modal);
@@ -217,7 +220,7 @@ public class Setup
     [InteractionResponse("doc_response")]
     public static async ValueTask ReceiveDocMessage(ModalSubmittedEventArgs args)
     {
-        var config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
+        DiscordConfig config = DataBase.DiscordConfigs[args.Interaction.GuildId!.Value];
         string message = (args.Values["message"] as TextInputModalSubmission)!.Value;
         config.SetDocMessage(message);
         await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate);

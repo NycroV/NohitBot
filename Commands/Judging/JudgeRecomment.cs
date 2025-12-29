@@ -6,6 +6,7 @@ using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using NohitBot.Commands.Info;
 using NohitBot.Database;
+using NohitBot.DataStructures;
 
 namespace NohitBot.Commands.Judging;
 
@@ -18,19 +19,19 @@ public class JudgeRecomment
     [RequireGuild]
     public static async Task JudgeRecommentAsync(CommandContext ctx, uint nohitId, [RemainingText] string? comment = null)
     {
-        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config)) 
+        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out DiscordConfig? config))
         {
             await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");
             return;
         }
-        
+
         if (!config.JudgeIds.Contains(ctx.User.Id))
         {
             await ctx.RespondAsync("You are not a judge in this server!");
             return;
         }
 
-        if (!DataBase.Nohits.TryGetValue(nohitId, out var nohit))
+        if (!DataBase.Nohits.TryGetValue(nohitId, out Nohit? nohit))
         {
             await ctx.RespondAsync("Invalid nohit ID!");
             return;
@@ -42,8 +43,10 @@ public class JudgeRecomment
             return;
         }
 
+        const string noComment = "No judge comment";
+        
         if (string.IsNullOrWhiteSpace(comment))
-            comment = "No judge comment";
+            comment = noComment;
 
         nohit.Verification.UpdateComment(comment);
 
@@ -52,8 +55,8 @@ public class JudgeRecomment
             DiscordMember member = await ctx.Guild.GetMemberAsync(ctx.User.Id);
             DiscordDmChannel dmChannel = await member.CreateDmChannelAsync();
 
-            var messages = dmChannel.GetMessagesAsync(100);
-            await foreach (var message in messages)
+            var messages = dmChannel.GetMessagesAsync();
+            await foreach (DiscordMessage message in messages)
             {
                 if (message.Author!.Id != ctx.Client.CurrentUser.Id || !(message.Content?.StartsWith('[') ?? false))
                     continue;
@@ -65,11 +68,9 @@ public class JudgeRecomment
                     continue;
 
                 string updatedReviewMessage =
-                    message.Content.Split('\n')[0] + (comment == "No judge comment" ? 
-                        "No comment was left." : 
-                        $"They also left a comment for you:\n\n\"{comment}\"");
+                    message.Content.Split('\n')[0] + (comment == noComment ? "No comment was left." : $"They also left a comment for you:\n\n\"{comment}\"");
 
-                await message.ModifyAsync(content: updatedReviewMessage);
+                await message.ModifyAsync(updatedReviewMessage);
                 await ctx.Channel.SendMessageAsync("DM message updated!");
                 return;
             }

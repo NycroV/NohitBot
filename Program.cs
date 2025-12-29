@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
+using DSharpPlus.Commands;
 using DSharpPlus.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NohitBot.Hosting;
-using NohitBot.Logging;
-using DSharpPlus.Commands;
 using NohitBot.Database;
 using NohitBot.Discord;
+using NohitBot.Hosting;
+using NohitBot.Logging;
 
 //----------------------//
 //----------------------//
@@ -17,7 +17,7 @@ const string RestartPath = "Restart.bat";
 if (File.Exists(RestartPath))
     File.Delete(RestartPath);
 
-var workingDirectory = Directory.CreateDirectory("BotFiles");
+DirectoryInfo workingDirectory = Directory.CreateDirectory("BotFiles");
 Directory.SetCurrentDirectory(workingDirectory.FullName);
 
 AppDomain.CurrentDomain.UnhandledException += (_, exception) =>
@@ -37,15 +37,16 @@ builder.Services.RegisterEventHandlers();
 builder.Services.AddAsyncTimers();
 
 builder.Services.AddCommandsExtension(
-    (_, commands) => {
+    (_, commands) =>
+    {
         commands.AddCommands(typeof(DiscordBotService).Assembly);
         commands.CommandErrored += DiscordBotService.CommandErrored;
         // commands.AddCheck<DiscordBotService.OneCommandAtATime>();
         // commands.CommandExecuted += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
         // commands.CommandErrored += async (_, _) => await DiscordBotService.OneCommandAtATime.CompleteCommandAsync();
     },
-
-    new CommandsConfiguration() {
+    new CommandsConfiguration
+    {
         UseDefaultCommandErrorHandler = false
     }
 );
@@ -61,7 +62,7 @@ DiscordBotService.Host = builder.Build();
 DiscordBotService.Host.Run();
 
 Directory.SetCurrentDirectory(workingDirectory.Parent!.FullName);
-string resetCommand = $"@echo off\nstart \"\" \"{Environment.ProcessPath!}\"";
+var resetCommand = $"@echo off\nstart \"\" \"{Environment.ProcessPath!}\"";
 
 File.WriteAllText(RestartPath, resetCommand);
 Process.Start(RestartPath);

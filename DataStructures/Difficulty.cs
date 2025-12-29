@@ -1,8 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Frozen;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
-using NohitBot.DataStructures;
 using NohitBot.Database;
 
 namespace NohitBot.DataStructures;
@@ -13,17 +12,35 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
 
     public readonly Modifier[] Modifiers = modifiers;
 
-    public static bool operator ==(Difficulty mode1, Difficulty mode2) => mode1.Mode == mode2.Mode && mode1.Modifiers.SequenceEqual(mode2.Modifiers);
+    public static bool operator ==(Difficulty mode1, Difficulty mode2)
+    {
+        return mode1.Mode == mode2.Mode && mode1.Modifiers.SequenceEqual(mode2.Modifiers);
+    }
 
-    public static bool operator !=(Difficulty mode1, Difficulty mode2) => !(mode1 == mode2);
+    public static bool operator !=(Difficulty mode1, Difficulty mode2)
+    {
+        return !(mode1 == mode2);
+    }
 
-    public bool Equals(Difficulty other) => this == other;
+    public bool Equals(Difficulty other)
+    {
+        return this == other;
+    }
 
-    public override bool Equals(object? obj) => obj is Difficulty other && Equals(other);
+    public override bool Equals(object? obj)
+    {
+        return obj is Difficulty other && Equals(other);
+    }
 
-    public override int GetHashCode() => HashCode.Combine(Mode, (IStructuralComparable)Modifiers);
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Mode, (IStructuralComparable)Modifiers);
+    }
 
-    public override string ToString() => string.Join('-', Modifiers.Select(m => m.Name).Prepend(Mode.Name));
+    public override string ToString()
+    {
+        return string.Join('-', Modifiers.Select(m => m.Name).Prepend(Mode.Name));
+    }
 
     public static bool TryParse(string code, ulong guildId, [NotNullWhen(true)] out Difficulty? difficulty, [NotNullWhen(false)] out string? errorMessage)
     {
@@ -31,21 +48,21 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
         var availableModes = DataBase.GameModes.Where(m => m.ManagementServer == guildId).ToArray();
         GameMode? gameMode = null;
 
-        for (int i = 0; i < inputs.Count; i++)
+        for (var i = 0; i < inputs.Count; i++)
         {
             string input = inputs[i];
-            
-            foreach (var mode in availableModes)
+
+            foreach (GameMode mode in availableModes)
             {
                 if (!mode.Identifier.Equals(input, StringComparison.OrdinalIgnoreCase) && !mode.Name.Equals(input, StringComparison.OrdinalIgnoreCase))
                     continue;
-                
+
                 gameMode = mode;
                 inputs.Remove(input);
                 goto DifficultySelected;
             }
         }
-        
+
         DifficultySelected:
 
         if (gameMode is null)
@@ -59,19 +76,19 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
         List<Modifier> modifiers = [];
 
         LoopModifiers:
-        
+
         while (inputs.Count > 0)
         {
             string input = inputs[0];
-            
-            foreach (var modifier in availableModifiers)
+
+            foreach (Modifier modifier in availableModifiers)
             {
                 if (modifiers.Contains(modifier))
                     continue;
-                
+
                 if (!modifier.Identifier.Equals(input, StringComparison.OrdinalIgnoreCase) && !modifier.Name.Equals(input, StringComparison.OrdinalIgnoreCase))
                     continue;
-                
+
                 modifiers.Add(modifier);
                 inputs.RemoveAt(0);
                 goto LoopModifiers;
@@ -94,40 +111,40 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
         var availableModes = DataBase.GameModes.Where(m => m.ManagementServer == guildId).ToArray();
         gameMode = null;
 
-        for (int i = 0; i < inputs.Count; i++)
+        for (var i = 0; i < inputs.Count; i++)
         {
             string input = inputs[i];
-            
-            foreach (var mode in availableModes)
+
+            foreach (GameMode mode in availableModes)
             {
                 if (!mode.Identifier.Equals(input, StringComparison.OrdinalIgnoreCase) && !mode.Name.Equals(input, StringComparison.OrdinalIgnoreCase))
                     continue;
-                
+
                 gameMode = mode;
                 inputs.Remove(input);
                 goto DifficultySelected;
             }
         }
-        
+
         DifficultySelected:
 
         var availableModifiers = (gameMode?.AllowedModifiers ?? DataBase.DifficultyModifiers.Where(m => m.ManagementServer == guildId)).ToArray();
         List<Modifier> selectedModifiers = [];
 
         LoopModifiers:
-        
+
         while (inputs.Count > 0)
         {
             string input = inputs[0];
-            
-            foreach (var modifier in availableModifiers)
+
+            foreach (Modifier modifier in availableModifiers)
             {
                 if (selectedModifiers.Contains(modifier))
                     continue;
-                
+
                 if (!modifier.Identifier.Equals(input, StringComparison.OrdinalIgnoreCase) && !modifier.Name.Equals(input, StringComparison.OrdinalIgnoreCase))
                     continue;
-                
+
                 selectedModifiers.Add(modifier);
                 inputs.RemoveAt(0);
                 goto LoopModifiers;
@@ -139,7 +156,7 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
 
             if (gameMode is not null)
                 errorMessage += $" for difficulty `{gameMode.Name}`";
-            
+
             return false;
         }
 
@@ -151,20 +168,9 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
 
     public class GameMode
     {
-        public string Name { get; private set; } = null!;
-
-        public string Identifier { get; private set; } = null!;
-
-        private List<Modifier> allowedModifiers { get; init; } = null!;
-
-        [JsonIgnore]
-        public FrozenSet<Modifier> AllowedModifiers => allowedModifiers.ToFrozenSet();
-
-        public BossProgression Progression { get; private set; } = null!;
-
-        public ulong ManagementServer { get; private set; }
-
-        private GameMode() {  }
+        private GameMode()
+        {
+        }
 
         private GameMode(string name, string identifier, IEnumerable<Modifier> modifiers, BossProgression progression, ulong managementServer)
         {
@@ -175,9 +181,21 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
             ManagementServer = managementServer;
         }
 
+        public string Name { get; } = null!;
+
+        public string Identifier { get; } = null!;
+
+        private List<Modifier> allowedModifiers { get; } = null!;
+
+        [JsonIgnore] public ReadOnlyCollection<Modifier> AllowedModifiers => allowedModifiers.AsReadOnly();
+
+        public BossProgression Progression { get; private set; } = null!;
+
+        public ulong ManagementServer { get; }
+
         public static GameMode Make(string name, string identifier, IEnumerable<Modifier> modifiers, BossProgression progression, ulong managementServer)
         {
-            GameMode gameMode = new GameMode(name, identifier, modifiers, progression, managementServer);
+            var gameMode = new GameMode(name, identifier, modifiers, progression, managementServer);
             DataBase.GameModes.Add(gameMode);
             DataBase.Save();
             return gameMode;
@@ -189,16 +207,12 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
             DataBase.Save();
         }
     }
-    
+
     public class Modifier
     {
-        public string Name { get; private set; } = null!;
-
-        public string Identifier { get; private set; } = null!;
-
-        public ulong ManagementServer { get; private set; }
-
-        private Modifier() { }
+        private Modifier()
+        {
+        }
 
         private Modifier(string name, string identifier, ulong managementServer)
         {
@@ -206,6 +220,12 @@ public readonly struct Difficulty(Difficulty.GameMode gameMode, Difficulty.Modif
             Identifier = identifier;
             ManagementServer = managementServer;
         }
+
+        public string Name { get; } = null!;
+
+        public string Identifier { get; } = null!;
+
+        public ulong ManagementServer { get; }
 
         public static Modifier Make(string name, string identifier, ulong managementServer)
         {

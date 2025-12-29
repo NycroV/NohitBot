@@ -15,8 +15,8 @@ public class Sudo
     [RequireGuild]
     public static async ValueTask SudoAsync(TextCommandContext ctx, DiscordMember member, [RemainingText] string command)
     {
-        var sudoCtx = ctx with { User = member };
-        string content = $"{ctx.Client.CurrentUser.Mention} {command}";
+        TextCommandContext sudoCtx = ctx with { User = member };
+        var content = $"{ctx.Client.CurrentUser.Mention} {command}";
 
         MessageCreatedEventArgs fakeArgs = await Utils.CreateFakeMessageEventArgsAsync(sudoCtx, sudoCtx.Message, content);
         await ctx.Extension.GetProcessor<TextCommandProcessor>().ExecuteTextCommandAsync(ctx.Client, fakeArgs);

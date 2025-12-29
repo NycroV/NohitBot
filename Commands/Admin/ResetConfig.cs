@@ -23,7 +23,7 @@ public class ResetConfig
             await ctx.RespondAsync("Server config reset.");
             return;
         }
-        
+
         await ctx.RespondAsync("No server config found.");
     }
 }

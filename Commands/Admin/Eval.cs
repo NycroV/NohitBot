@@ -11,22 +11,16 @@ namespace NohitBot.Commands.Admin;
 
 public class Eval
 {
-    public class TestVariables(TextCommandContext context)
-    {
-        [UsedImplicitly]
-        public TextCommandContext ctx { get; set; } = context;
-    }
-    
     [Command(nameof(Eval))]
     [RequireApplicationOwner]
-    public static async ValueTask EvalAsync(TextCommandContext ctx, [RemainingText]string code)
+    public static async ValueTask EvalAsync(TextCommandContext ctx, [RemainingText] string code)
     {
         // ReSharper disable once StringIndexOfIsCultureSpecific.1
-        var code_start = code.IndexOf("```") + 3;
+        int code_start = code.IndexOf("```") + 3;
         code_start = code.IndexOf('\n', code_start) + 1;
-        
+
         // ReSharper disable once StringLastIndexOfIsCultureSpecific.1
-        var code_end = code.LastIndexOf("```");
+        int code_end = code.LastIndexOf("```");
 
         if (code_start == -1 || code_end == -1)
         {
@@ -34,7 +28,7 @@ public class Eval
             return;
         }
 
-        var cs = code.Substring(code_start, code_end - code_start);
+        string cs = code.Substring(code_start, code_end - code_start);
 
         await ctx.RespondAsync("Working...");
         await ctx.Channel.TriggerTypingAsync();
@@ -61,30 +55,30 @@ public class Eval
 
             var script = CSharpScript.Create(cs, scriptOptions, typeof(TestVariables));
             script.Compile();
-            
+
             var result = await script.RunAsync(globals).ConfigureAwait(false);
             string? resultString = result?.ReturnValue?.ToString() ?? null;
 
             if (result is { ReturnValue: not null } && !string.IsNullOrWhiteSpace(resultString))
-                await ctx.RespondAsync(new DiscordEmbedBuilder()
+                await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Title = "✅ Evaluation Result",
                     Color = DiscordColor.Teal,
                     Description = result.ReturnValue.ToString()
                 }.Build());
-            
+
             else
-                await ctx.RespondAsync(new DiscordEmbedBuilder()
+                await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Title = "✅ Evaluation Result",
                     Color = DiscordColor.Teal,
                     Description = "No result was returned."
                 }.Build());
         }
-        
+
         catch (Exception ex)
         {
-            await ctx.RespondAsync(new DiscordEmbedBuilder()
+            await ctx.RespondAsync(new DiscordEmbedBuilder
             {
                 Title = "⚠️ Evaluation Failure",
                 Color = DiscordColor.DarkRed,
@@ -92,5 +86,10 @@ public class Eval
                               $"{ex.Message}"
             }.Build());
         }
+    }
+
+    public class TestVariables(TextCommandContext context)
+    {
+        [UsedImplicitly] public TextCommandContext ctx { get; set; } = context;
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Frozen;
+﻿using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using NohitBot.Database;
 
@@ -7,18 +6,9 @@ namespace NohitBot.DataStructures;
 
 public class JudgeProfile
 {
-    public ulong UserId { get; init; }
-
-    public string Name { get; private set; } = null!;
-
-    public string JourneyMessage { get; private set; } = null!;
-    
-    private List<string> aliases { get; set; } = null!;
-    
-    [JsonIgnore]
-    public FrozenSet<string> Aliases => aliases.ToFrozenSet();
-    
-    private JudgeProfile() { }
+    private JudgeProfile()
+    {
+    }
 
     private JudgeProfile(ulong userId, string name, string journeyMessage, IEnumerable<string>? judgeAliases = null)
     {
@@ -27,6 +17,16 @@ public class JudgeProfile
         JourneyMessage = journeyMessage;
         aliases = judgeAliases?.ToList() ?? [];
     }
+
+    public ulong UserId { get; init; }
+
+    public string Name { get; private set; } = null!;
+
+    public string JourneyMessage { get; private set; } = null!;
+
+    private List<string> aliases { get; set; } = null!;
+
+    [JsonIgnore] public ReadOnlyCollection<string> Aliases => aliases.AsReadOnly();
 
     public static JudgeProfile Make(ulong userId, string name, string journeyMessage, IEnumerable<string>? judgeAliases = null)
     {

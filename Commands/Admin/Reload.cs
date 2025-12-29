@@ -1,7 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
-using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -12,21 +11,20 @@ namespace NohitBot.Commands.Admin;
 
 public class Reload(DiscordClient client) : DiscordEventHandler<ClientStartedEventArgs>
 {
-    private DiscordClient Client { get; } = client;
-    
     public const string ReloadInfoPath = "ReloadInfo.txt";
-    
+    private DiscordClient Client { get; } = client;
+
     [Command(nameof(Reload))]
     [RequireApplicationOwner]
     public static async ValueTask ReloadAsync(TextCommandContext ctx)
     {
         await ctx.RespondAsync("Reloading...");
-        var message = await ctx.GetResponseAsync();
-        
+        DiscordMessage? message = await ctx.GetResponseAsync();
+
         await File.WriteAllTextAsync(ReloadInfoPath, $"{ctx.Guild!.Id}/{ctx.Channel.Id}/{message!.Id}");
         await DiscordBotService.Host.StopAsync();
     }
-    
+
     public override async Task HandleAsync(ClientStartedEventArgs args)
     {
         if (!File.Exists(ReloadInfoPath))
@@ -36,7 +34,7 @@ public class Reload(DiscordClient client) : DiscordEventHandler<ClientStartedEve
         File.Delete(ReloadInfoPath);
 
         string[] messageIds = text.Split('/');
-        
+
         ulong guildId = ulong.Parse(messageIds[0]);
         ulong channelId = ulong.Parse(messageIds[1]);
         ulong messageId = ulong.Parse(messageIds[2]);

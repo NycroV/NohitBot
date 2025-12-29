@@ -1,28 +1,32 @@
 ﻿using DSharpPlus;
 using Microsoft.Extensions.Logging;
 
-namespace NohitBot.Logging
+namespace NohitBot.Logging;
+
+internal class CompositeDiscordLogger(IEnumerable<ILoggerProvider> providers) : ILogger
 {
-    internal class CompositeDiscordLogger(IEnumerable<ILoggerProvider> providers) : ILogger
+    private IEnumerable<ILogger> Loggers { get; } = providers.Select(x => x.CreateLogger(typeof(BaseDiscordClient).FullName!)).ToList();
+
+    public bool IsEnabled(LogLevel logLevel)
     {
-        private IEnumerable<ILogger> Loggers { get; } = providers.Select(x => x.CreateLogger(typeof(BaseDiscordClient).FullName!)).ToList();
+        return true;
+    }
 
-        public bool IsEnabled(LogLevel logLevel) => true;
+    public void Log<TState>
+    (
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception? exception,
+        Func<TState, Exception?, string> formatter
+    )
+    {
+        foreach (ILogger logger in Loggers)
+            logger.Log(logLevel, eventId, state, exception, formatter);
+    }
 
-        public void Log<TState>
-        (
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception? exception,
-            Func<TState, Exception?, string> formatter
-        )
-        {
-            foreach (ILogger logger in Loggers)
-                logger.Log(logLevel, eventId, state, exception, formatter);
-        }
-
-        public IDisposable BeginScope<TState>(TState state) where TState : notnull
-            => throw new Exception("Discord logger cannot be scoped.");
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull
+    {
+        throw new("Discord logger cannot be scoped.");
     }
 }

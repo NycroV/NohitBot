@@ -9,7 +9,7 @@ namespace NohitBot.Hosting;
 public abstract class AsyncTimer(ILogger logger) : IHostedService
 {
     public static SemaphoreSlim Access { get; } = new(1, 1);
-    
+
     public required Timer Timer { get; set; }
 
     public virtual TimeSpan? InitialInterval { get; } = null;
@@ -21,7 +21,6 @@ public abstract class AsyncTimer(ILogger logger) : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         if (InitialInterval is null)
-        {
             await Task.Run(() =>
             {
                 Timer = new(Interval);
@@ -29,10 +28,8 @@ public abstract class AsyncTimer(ILogger logger) : IHostedService
                 Timer.AutoReset = true;
                 Timer.Start();
             }, cancellationToken);
-        }
 
         else
-        {
             await Task.Run(() =>
             {
                 Timer = new(InitialInterval.Value);
@@ -40,7 +37,6 @@ public abstract class AsyncTimer(ILogger logger) : IHostedService
                 Timer.AutoReset = false;
                 Timer.Start();
             }, cancellationToken);
-        }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -98,15 +94,15 @@ public static class AsyncTimerExtensions
         "AddHostedSingleton",
         BindingFlags.Public | BindingFlags.Static,
         [typeof(IServiceCollection)])!;
-    
+
     public static void AddAsyncTimers(this IServiceCollection services)
     {
-        var timerType = typeof(AsyncTimer);
+        Type timerType = typeof(AsyncTimer);
         var types = timerType.Assembly.GetTypes().Where(t => t.IsSubclassOf(timerType) && !t.IsAbstract);
-        
-        foreach (var type in types)
+
+        foreach (Type type in types)
         {
-            var addHostedGeneric = addHostedSingletonMethod.MakeGenericMethod(type);
+            MethodInfo addHostedGeneric = addHostedSingletonMethod.MakeGenericMethod(type);
             addHostedGeneric.Invoke(null, [services]);
         }
     }

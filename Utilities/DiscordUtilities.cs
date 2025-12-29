@@ -7,7 +7,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 
-namespace  NohitBot.Utilities;
+namespace NohitBot.Utilities;
 
 public static partial class Utils
 {
@@ -64,14 +64,17 @@ public static partial class Utils
 
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "mentionedChannels")]
     private static extern ref List<DiscordChannel> _messageMentionedChannelsSetter(DiscordMessage message);
-    
-    public static DiscordMessage Copy(this DiscordMessage message) => _messageConstructor(message);
+
+    public static DiscordMessage Copy(this DiscordMessage message)
+    {
+        return _messageConstructor(message);
+    }
 
     public static async Task<DiscordMember?> GetMemberSafeAsync(this DiscordGuild guild, ulong userId)
     {
         try
         {
-            var member = await guild.GetMemberAsync(userId);
+            DiscordMember member = await guild.GetMemberAsync(userId);
             return member;
         }
         catch
@@ -113,21 +116,13 @@ public static partial class Utils
         {
             MatchCollection roleMatches = _roleMentionRegex().Matches(content);
             foreach (Match match in roleMatches.Cast<Match>())
-            {
                 if (ulong.TryParse(match.Groups[1].Value, out ulong roleId))
-                {
                     roleMentions.Add(await guild.GetRoleAsync(roleId));
-                }
-            }
 
             MatchCollection userMatches = _userMentionRegex().Matches(content);
             foreach (Match match in userMatches.Cast<Match>())
-            {
                 if (ulong.TryParse(match.Groups[1].Value, out ulong userId))
-                {
                     userMentions.Add(await client.GetUserAsync(userId));
-                }
-            }
         }
 
         MatchCollection channelMatches = _channelMentionRegex().Matches(content);
@@ -162,29 +157,45 @@ public static partial class Utils
     public static async Task RespondAsync(this CommandContext context, DiscordMessageBuilder message, bool ephemeral)
     {
         if (context is SlashCommandContext slashContext && ephemeral)
-        {
             await slashContext.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder(message).AsEphemeral());
-        }
 
         await context.RespondAsync(message);
     }
 
     public static async ValueTask<DiscordGuild?> GetGuildSafeAsync(this DiscordClient client, ulong guildId, bool skipCache = false)
     {
-        try { return await client.GetGuildAsync(guildId, skipCache); }
-        catch {return null; }
+        try
+        {
+            return await client.GetGuildAsync(guildId, skipCache);
+        }
+        catch
+        {
+            return null;
+        }
     }
-    
+
     public static async ValueTask<DiscordChannel?> GetChannelSafeAsync(this DiscordGuild guild, ulong channelId, bool skipCache = false)
     {
-        try { return await guild.GetChannelAsync(channelId, skipCache); }
-        catch { return null; }
+        try
+        {
+            return await guild.GetChannelAsync(channelId, skipCache);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public static async ValueTask<DiscordMessage?> GetMessageSafeAsync(this DiscordChannel channel, ulong messageId, bool skipCache = false)
     {
-        try { return await channel.GetMessageAsync(messageId, skipCache); }
-        catch { return null; }
+        try
+        {
+            return await channel.GetMessageAsync(messageId, skipCache);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

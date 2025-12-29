@@ -1,32 +1,30 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 
-namespace NohitBot.Logging
+namespace NohitBot.Logging;
+
+internal class DiscordLoggerProvider(LogLevel minimum = LogLevel.Trace) : ILoggerProvider
 {
-    internal class DiscordLoggerProvider(LogLevel minimum = LogLevel.Trace) : ILoggerProvider
+    private readonly ConcurrentDictionary<string, DiscordLogger> loggers = new(StringComparer.Ordinal);
+    private readonly LogLevel minimum = minimum;
+
+    /// <inheritdoc />
+    public ILogger CreateLogger(string categoryName)
     {
-        private readonly ConcurrentDictionary<string, DiscordLogger> loggers = new(StringComparer.Ordinal);
-        private readonly LogLevel minimum = minimum;
+        if (loggers.TryGetValue(categoryName, out DiscordLogger? value))
+            return value;
 
-        /// <inheritdoc/>
-        public ILogger CreateLogger(string categoryName)
-        {
-            if (loggers.TryGetValue(categoryName, out DiscordLogger? value))
-                return value;
+        DiscordLogger logger = new(categoryName, minimum);
 
-            else
-            {
-                DiscordLogger logger = new(categoryName, minimum);
+        return loggers.AddOrUpdate
+        (
+            categoryName,
+            logger,
+            (_, _) => logger
+        );
+    }
 
-                return loggers.AddOrUpdate
-                (
-                    categoryName,
-                    logger,
-                    (_, _) => logger
-                );
-            }
-        }
-
-        public void Dispose() { }
+    public void Dispose()
+    {
     }
 }

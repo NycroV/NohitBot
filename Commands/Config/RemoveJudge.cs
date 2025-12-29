@@ -4,6 +4,7 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using NohitBot.Commands.Info;
 using NohitBot.Database;
+using NohitBot.DataStructures;
 
 namespace NohitBot.Commands.Config;
 
@@ -16,7 +17,7 @@ public class RemoveJudge
     [RequirePermissions(DiscordPermission.Administrator)]
     public static async ValueTask RemoveJudgeAsync(CommandContext ctx, DiscordMember user)
     {
-        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config))
+        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out DiscordConfig? config))
         {
             await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");
             return;
@@ -27,7 +28,7 @@ public class RemoveJudge
             await ctx.RespondAsync("Specified user is not a judge.");
             return;
         }
-        
+
         await ctx.RespondAsync("Judge removed!");
         await config.UpdateJudgeInfoPin();
     }

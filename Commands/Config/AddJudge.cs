@@ -3,8 +3,8 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using NohitBot.Commands.Info;
-using NohitBot.DataStructures;
 using NohitBot.Database;
+using NohitBot.DataStructures;
 
 namespace NohitBot.Commands.Config;
 
@@ -17,7 +17,7 @@ public class AddJudge
     [RequirePermissions(DiscordPermission.Administrator)]
     public static async ValueTask AddJudgeAsync(CommandContext ctx, DiscordMember user)
     {
-        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out var config))
+        if (!DataBase.DiscordConfigs.TryGetValue(ctx.Guild!.Id, out DiscordConfig? config))
         {
             await ctx.RespondAsync("This server is not yet set up for configuration. Run `/setup` for setup!");
             return;
@@ -28,10 +28,10 @@ public class AddJudge
             await ctx.RespondAsync("This user is already a judge.");
             return;
         }
-        
+
         config.AddJudge(user.Id);
         JudgeProfile.Make(user.Id, user.Username, "set up their judge profile");
-        
+
         await ctx.RespondAsync("Judge added!");
         await config.UpdateJudgeInfoPin();
     }

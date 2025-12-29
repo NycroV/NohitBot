@@ -23,7 +23,7 @@ public class Port
             await ctx.RespondAsync($"Error: `{newId}` is not a valid user ID.");
             return;
         }
-        
+
         string text = DataBase.ReadFile();
 
         if (!text.Contains(oldId))
@@ -34,11 +34,11 @@ public class Port
 
         int count = text.Split(oldId).Length - 1;
         string newText = text.Replace(oldId, newId);
-        
+
         DataBase.WriteFile(newText);
         await ctx.RespondAsync($"**{count}** instances of {oldId} replaced with {newId}.\n" +
                                $"Reloading...");
-        
+
         await DiscordBotService.Host.StopAsync();
     }
 }

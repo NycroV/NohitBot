@@ -6,27 +6,9 @@ namespace NohitBot.DataStructures;
 [JsonObject(MemberSerialization.OptOut)]
 public class Nohit
 {
-    public uint ID { get; private set; }
-    
-    public ulong UserID { get; init; }
-    
-    public string Url { get; init; } = null!;
-    
-    public Difficulty Difficulty { get; init; }
-    
-    public Boss Boss { get; init; } = null!;
-
-    public DateTime TimeStamp { get; init; }
-    
-    public string? UserComment { get; private set; } = null;
-    
-    public Verification Verification { get; set; } = Verification.Default;
-    
-    [JsonIgnore] public Journey Journey => DataBase.Journeys[UserID][Difficulty];
-
-    [JsonIgnore] public bool Deleted => UserID == 0uL;
-
-    private Nohit() { }
+    private Nohit()
+    {
+    }
 
     public Nohit(ulong userId, Boss boss, Difficulty difficulty, string url)
     {
@@ -35,4 +17,24 @@ public class Nohit
         Difficulty = difficulty;
         Url = url;
     }
+
+    public uint ID { get; private set; }
+
+    public ulong UserID { get; init; }
+
+    public string Url { get; init; } = null!;
+
+    public Difficulty Difficulty { get; init; }
+
+    public Boss Boss { get; init; } = null!;
+
+    public DateTime TimeStamp { get; init; }
+
+    public string? UserComment { get; private set; }
+
+    public Verification Verification { get; set; } = Verification.Default;
+
+    [JsonIgnore] public Journey Journey => DataBase.Journeys[UserID][Difficulty];
+
+    [JsonIgnore] public bool Deleted => UserID == 0uL;
 }

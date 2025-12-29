@@ -6,8 +6,18 @@ namespace NohitBot.DataStructures;
 
 public class Journey
 {
+    private Journey()
+    {
+    }
+
+    public Journey(ulong userId, Difficulty difficulty)
+    {
+        UserID = userId;
+        Difficulty = difficulty;
+    }
+
     public ulong UserID { get; init; }
-    
+
     public string? PlaylistUrl { get; private set; } = null;
 
     public Difficulty Difficulty { get; init; }
@@ -25,7 +35,7 @@ public class Journey
             return nohits.ToFrozenDictionary();
         }
     }
-    
+
     [JsonIgnore]
     public FrozenDictionary<Boss, List<Nohit>> OldNohits
     {
@@ -36,7 +46,7 @@ public class Journey
 
             foreach (Nohit nohit in DataBase.Nohits.Values.Where(n => n.Difficulty == Difficulty))
             {
-                if (newerNohits.TryGetValue(nohit.Boss, out var newerNohit))
+                if (newerNohits.TryGetValue(nohit.Boss, out Nohit? newerNohit))
                 {
                     nohits.TryAdd(nohit.Boss, []);
                     nohits[nohit.Boss].Add(newerNohit);
@@ -44,25 +54,20 @@ public class Journey
 
                 newerNohits[nohit.Boss] = nohit;
             }
-            
+
             return nohits.ToFrozenDictionary();
         }
     }
 
+
+    [JsonIgnore] public bool SubmissionsComplete => Difficulty.Mode.Progression.RequiredBosses.All(b => Nohits.ContainsKey(b));
+
     [JsonIgnore] public bool Complete => Difficulty.Mode.Progression.RequiredBosses.All(BossVerified);
 
-    private Journey() { }
-
-    public Journey(ulong userId, Difficulty difficulty)
-    {
-        UserID = userId;
-        Difficulty = difficulty;
-    }
-    
     public bool BossVerified(Boss boss)
     {
         return
-            (Nohits.TryGetValue(boss, out Nohit? nohit) && (nohit.Verification.ReviewStatus == VerificationStatus.Verified)) || 
+            (Nohits.TryGetValue(boss, out Nohit? nohit) && nohit.Verification.ReviewStatus == VerificationStatus.Verified) ||
             (OldNohits.TryGetValue(boss, out var oldNohits) && oldNohits.Any(oldNohit => oldNohit.Verification.ReviewStatus == VerificationStatus.Verified));
     }
 }

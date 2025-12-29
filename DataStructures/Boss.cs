@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+﻿using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using NohitBot.Database;
 
@@ -7,16 +7,9 @@ namespace NohitBot.DataStructures;
 [JsonObject(MemberSerialization.OptOut)]
 public class Boss
 {
-    public string Name { get; private set; } = null!;
-
-    private List<string> aliases { get; init; } = null!;
-
-    [JsonIgnore]
-    public FrozenSet<string> Aliases => aliases.ToFrozenSet();
-
-    public ulong ManagementServer { get; init; }
-    
-    private Boss() { }
+    private Boss()
+    {
+    }
 
     private Boss(string name, ulong managementServer, IEnumerable<string>? bossAliases = null)
     {
@@ -24,6 +17,14 @@ public class Boss
         aliases = bossAliases?.ToList() ?? [];
         ManagementServer = managementServer;
     }
+
+    public string Name { get; private set; } = null!;
+
+    private List<string> aliases { get; init; } = null!;
+
+    [JsonIgnore] public ReadOnlyCollection<string> Aliases => aliases.AsReadOnly();
+
+    public ulong ManagementServer { get; init; }
 
     public static Boss Make(string name, ulong managementServer, IEnumerable<string>? bossAliases = null)
     {

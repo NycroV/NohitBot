@@ -4,17 +4,17 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using NohitBot.DataStructures;
 using NohitBot.Database;
+using NohitBot.DataStructures;
 using NohitBot.Hosting;
 
 namespace NohitBot.Commands.Info;
 
 public class Aliases(DiscordClient client) : DiscordEventHandler<ClientStartedEventArgs>
 {
-    private static DiscordComponentEmoji? LeftArrow { get; set; } = null;
+    private static DiscordComponentEmoji? LeftArrow { get; set; }
 
-    private static DiscordComponentEmoji? RightArrow { get; set; } = null;
+    private static DiscordComponentEmoji? RightArrow { get; set; }
 
     public override Task HandleAsync(ClientStartedEventArgs args)
     {
@@ -22,7 +22,7 @@ public class Aliases(DiscordClient client) : DiscordEventHandler<ClientStartedEv
         RightArrow ??= new(DiscordEmoji.FromName(client, ""));
         return Task.CompletedTask;
     }
-    
+
     [Command(nameof(Aliases))]
     [Description("Lists all the aliases for bosses.")]
     [Help.AllHelp]
@@ -32,7 +32,7 @@ public class Aliases(DiscordClient client) : DiscordEventHandler<ClientStartedEv
         var bosses = DataBase.Bosses.Values.Where(b => b.ManagementServer == 0uL || b.ManagementServer == ctx.Guild!.Id).ToArray();
         var page = bosses.Take(25);
 
-        var message = BuildAliasPage(ctx.Guild!.Name, page, 1, (bosses.Length - 1) / 25 + 1);
+        DiscordMessageBuilder message = BuildAliasPage(ctx.Guild!.Name, page, 1, (bosses.Length - 1) / 25 + 1);
         await ctx.RespondAsync(message);
     }
 
@@ -49,19 +49,19 @@ public class Aliases(DiscordClient client) : DiscordEventHandler<ClientStartedEv
         currentPage = Math.Clamp(currentPage, 1, maxPages);
 
         var page = bosses.Skip((currentPage - 1) * 25).Take(25);
-        var message = BuildAliasPage(args.Guild.Name, page, currentPage, maxPages);
-        
+        DiscordMessageBuilder message = BuildAliasPage(args.Guild.Name, page, currentPage, maxPages);
+
         await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(message));
     }
 
     private static DiscordMessageBuilder BuildAliasPage(string guildName, IEnumerable<Boss> bosses, int pageNumber, int maxPages)
     {
-        var embed = new DiscordEmbedBuilder()
+        DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
             .WithTitle("Boss Aliases")
             .WithDescription($"Aliases for bosses in {guildName}")
             .WithFooter($"{pageNumber} / {maxPages}");
 
-        foreach (var boss in bosses)
+        foreach (Boss boss in bosses)
             embed.AddField(boss.Name, string.Join(", ", boss.Aliases), true);
 
         return new DiscordMessageBuilder()

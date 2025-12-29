@@ -11,12 +11,12 @@ public class Test
     public async ValueTask TestAsync(CommandContext ctx)
     {
         TimeSpan uptime = DateTime.UtcNow - DiscordBotService.StartupTime;
-        int ping = (int)Math.Round(ctx.Client.GetConnectionLatency(ctx.Guild!.Id).TotalMilliseconds);
+        var ping = (int)Math.Round(ctx.Client.GetConnectionLatency(ctx.Guild!.Id).TotalMilliseconds);
 
         await ctx.RespondAsync(
             "NohitBot Stats:\n" +
-                   "\n" +
-                   $"Uptime: {uptime.Days}d, {uptime.Hours}h, {uptime.Minutes}m, {uptime.Seconds}s\n" +
-                   $"Latency: {ping}ms");
+            "\n" +
+            $"Uptime: {uptime.Days}d, {uptime.Hours}h, {uptime.Minutes}m, {uptime.Seconds}s\n" +
+            $"Latency: {ping}ms");
     }
 }
