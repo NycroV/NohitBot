@@ -80,6 +80,7 @@ public static class EventHandlerExtensions
         services.ConfigureEventHandlers(events =>
         {
             Type handlerType = typeof(DiscordEventHandler);
+            Type singletonHandlerType = typeof(DiscordEventHandler<>);
             Type transientHandlerType = typeof(TransientDiscordEventHandler<>);
             Type scopedHandlerType = typeof(ScopedDiscordEventHandler<>);
 
@@ -87,13 +88,44 @@ public static class EventHandlerExtensions
 
             foreach (Type type in types)
             {
-                ServiceLifetime lifetime =
-                    type.BaseType == transientHandlerType ? ServiceLifetime.Transient :
-                    type.BaseType == scopedHandlerType ? ServiceLifetime.Scoped :
-                    ServiceLifetime.Singleton;
+                Type lifetimeType = type;
+                ServiceLifetime? lifetime;
+                
+                while (true)
+                {
+                    if (lifetimeType.BaseType!.GenericTypeArguments.Length != 1)
+                    {
+                        if (lifetimeType.BaseType == handlerType)
+                            throw new("You cannot inherit from DiscordEventHandler directly - instead, inherit from one of its generic implementations.");
+                        
+                        lifetimeType = lifetimeType.BaseType;
+                        continue;
+                    }
+                    
+                    var genericType = lifetimeType.BaseType.GenericTypeArguments[0];
+
+                    if (!genericType.IsSubclassOf(typeof(DiscordEventArgs)))
+                    {
+                        lifetimeType = lifetimeType.BaseType;
+                        continue;
+                    }
+
+                    lifetime = lifetimeType switch
+                    {
+                        _ when lifetimeType.BaseType == singletonHandlerType.MakeGenericType(genericType) => ServiceLifetime.Singleton,
+                        _ when lifetimeType.BaseType == transientHandlerType.MakeGenericType(genericType) => ServiceLifetime.Transient,
+                        _ when lifetimeType.BaseType == scopedHandlerType.MakeGenericType(genericType) => ServiceLifetime.Scoped,
+                        _ => null
+                    };
+
+                    if (lifetime is not null)
+                        break;
+                    
+                    lifetimeType = lifetimeType.BaseType;
+                }
 
                 MethodInfo registerGeneric = registerMethod.MakeGenericMethod(type);
-                registerGeneric.Invoke(events, [lifetime]);
+                registerGeneric.Invoke(events, [lifetime!.Value]);
             }
         });
 
@@ -108,14 +140,13 @@ public static class EventHandlerExtensions
                 var parameters = method.GetParameters();
                 string interactionKey = ((InteractionResponseAttribute)Attribute.GetCustomAttribute(method, interactionAttribute)!).InteractionId;
 
-                if (method.ReturnType != typeof(Task))
-                    throw new("InteractionResponse methods must have a Task return type.");
+                if (method.ReturnType != typeof(ValueTask) && method.ReturnType != typeof(Task))
+                    throw new("InteractionResponse methods must have a ValueTask or Task return type.");
+
+                if (parameters.Length != 1 || !parameters[0].ParameterType.IsAssignableTo(typeof(InteractionCreatedEventArgs)))
+                    throw new("InteractionResponse methods must have only 1 parameter, which derives from InteractionCreatedEventArgs.");
 
                 Type eventType = parameters[0].ParameterType;
-
-                if (parameters.Length != 1 || !eventType.IsAssignableTo(typeof(InteractionCreatedEventArgs)))
-                    throw new("InteractionResponses must have 1 parameters that derives from InteractionCreatedEventArgs.");
-
                 Type? serviceType = method.IsStatic ? null : method.DeclaringType;
 
                 if (serviceType is not null)
@@ -125,10 +156,13 @@ public static class EventHandlerExtensions
                 {
                     object? invocationObject = serviceType is null ? null : provider.GetRequiredService(serviceType);
 
-                    if ((args as InteractionCreatedEventArgs)!.Interaction.Data.CustomId.StartsWith(interactionKey))
-                        return (Task)method.Invoke(invocationObject, [args])!;
-
-                    return Task.CompletedTask;
+                    if (!(args as InteractionCreatedEventArgs)!.Interaction.Data.CustomId.StartsWith(interactionKey))
+                        return Task.CompletedTask;
+                    
+                    if (method.ReturnType == typeof(ValueTask))
+                        return ((ValueTask)method.Invoke(invocationObject, [args])!).AsTask();
+                        
+                    return (Task)method.Invoke(invocationObject, [args])!;
                 }
 
                 events.Services.Configure<EventHandlerCollection>(collection =>
