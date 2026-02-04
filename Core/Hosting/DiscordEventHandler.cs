@@ -96,7 +96,8 @@ public static class EventHandlerExtensions
                     if (lifetimeType.BaseType!.GenericTypeArguments.Length != 1)
                     {
                         if (lifetimeType.BaseType == handlerType)
-                            throw new("You cannot inherit from DiscordEventHandler directly - instead, inherit from one of its generic implementations.");
+                            throw new($"You cannot inherit from DiscordEventHandler directly - instead, inherit from one of its generic implementations.\n" +
+                                      $"Type: {lifetimeType}");
                         
                         lifetimeType = lifetimeType.BaseType;
                         continue;

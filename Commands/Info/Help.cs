@@ -56,7 +56,8 @@ public class Help(CommandsExtension commands) : DiscordEventHandler<ClientStarte
         {
             "all" => AllHelpCommands,
             "judge" => JudgeHelpCommands,
-            "admin" => AdminHelpCommands
+            "admin" => AdminHelpCommands,
+            _ => []
         };
 
         DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
